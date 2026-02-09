@@ -217,6 +217,7 @@
         }
         .ratio-btn.active { border-color: var(--primary); color: var(--primary); background: rgba(0, 230, 118, 0.05); }
         
+        /* 압축 탭 버튼 스타일 수정 (가시성 강화) */
         .preset-btns { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -228,17 +229,15 @@
             background: #2d2d2d;
             border: 1px solid #444; 
             color: #ccc; 
-            font-size: 1.15rem; 
-            padding: 0; 
+            font-size: 1.1rem; /* 글자 크기 조정 */
+            padding: 15px 0; /* 패딩 조정 */
             border-radius: 12px; 
             cursor: pointer; 
             transition: all 0.2s; 
-            min-height: 68px; 
             display: flex; 
-            flex-direction: column; 
             justify-content: center; 
             align-items: center;
-            font-weight: 800;
+            font-weight: 800; /* 굵게 */
         }
         .preset-btn:hover { border-color: #777; background: #383838; color: #fff; }
         .preset-btn.active { 
@@ -247,14 +246,9 @@
             background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%);
             box-shadow: 0 4px 12px rgba(0,230,118,0.2);
         }
+        /* 부가 설명 삭제로 인한 span 스타일 제거/수정 */
         .preset-btn span { 
             display: block; 
-            font-size: 0.75rem; 
-            opacity: 0.8; 
-            margin-top: 2px; 
-            font-weight: 500;
-            word-break: keep-all; 
-            line-height: 1.1;
         }
 
         /* 액션 로우: 커피 + 다운로드 */
@@ -379,8 +373,8 @@
     </div>
 
     <div id="splitPanel" class="config-grid" style="grid-template-columns: repeat(3, 1fr);">
-        <div class="input-group"><label data-i18n="col">세로 칸</label><input type="number" id="colInput" class="input-num" value="1" min="1" oninput="resetGridPositions()"></div>
         <div class="input-group"><label data-i18n="row">가로 칸</label><input type="number" id="rowInput" class="input-num" value="1" min="1" oninput="resetGridPositions()"></div>
+        <div class="input-group"><label data-i18n="col">세로 칸</label><input type="number" id="colInput" class="input-num" value="1" min="1" oninput="resetGridPositions()"></div>
         <div class="input-group"><label data-i18n="border">테두리 자르기(%)</label><input type="number" id="cropInput" class="input-num" value="0.5" step="0.1" oninput="drawVisualizer()"></div>
     </div>
 
@@ -402,10 +396,10 @@
         <div class="input-group">
             <label data-i18n="target_cap">원하는 파일 용량 (자동 맞춤)</label>
             <div class="preset-btns">
-                <button class="preset-btn" id="p500" onclick="setTargetMB(0.5, this)"><span data-i18n="p500">500KB 이하</span> <span data-i18n="p500_d">공공기관 제출용</span></button>
-                <button class="preset-btn" id="p1" onclick="setTargetMB(1.0, this)"><span data-i18n="p1">1MB 이하</span> <span data-i18n="p1_d">웹사이트 게시용</span></button>
-                <button class="preset-btn" id="p2" onclick="setTargetMB(2.0, this)"><span data-i18n="p2">2MB 이하</span> <span data-i18n="p2_d">블로그/SNS용</span></button>
-                <button class="preset-btn active" id="p5" onclick="setTargetMB(5.0, this)"><span data-i18n="p5">5MB 이하</span> <span data-i18n="p5_d">고화질 보관용</span></button>
+                <button class="preset-btn" id="p500" onclick="setTargetMB(0.5, this)"><span data-i18n="p500">500KB 이하</span></button>
+                <button class="preset-btn" id="p1" onclick="setTargetMB(1.0, this)"><span data-i18n="p1">1MB 이하</span></button>
+                <button class="preset-btn" id="p2" onclick="setTargetMB(2.0, this)"><span data-i18n="p2">2MB 이하</span></button>
+                <button class="preset-btn active" id="p5" onclick="setTargetMB(5.0, this)"><span data-i18n="p5">5MB 이하</span></button>
             </div>
         </div>
     </div>
@@ -470,6 +464,8 @@
 
     let currentLang = 'ko';
     const flags = { ko: 'kr', en: 'us', cn: 'cn', jp: 'jp' };
+    
+    // 수정: 다국어 데이터 정리 (부가 설명 삭제, 키 제거)
     const t = {
         ko: { 
             business: "비지니스 문의", 
@@ -481,7 +477,7 @@
             col: "세로 칸", row: "가로 칸", border: "테두리 자르기(%)", 
             cut_ratio: "자르는 비율 선택", full: "원본 전체", free_trans: "자유 변형", custom: "비율 입력", 
             target_cap: "원하는 파일 용량 (자동 맞춤)", 
-            p500: "500KB 이하", p500_d: "공공기관 제출용", p1: "1MB 이하", p1_d: "웹사이트 게시용", p2: "2MB 이하", p2_d: "블로그/SNS용", p5: "5MB 이하", p5_d: "고화질 보관용", 
+            p500: "500KB 이하", p1: "1MB 이하", p2: "2MB 이하", p5: "5MB 이하", 
             down: "다운로드", wait: "잠시 기다려주세요.",
             down_pair: "{n}번 다운로드", down_done_pair: "완료! {n}번 다운로드", all_done: "전체 완료 (다시 시작)"
         },
@@ -495,7 +491,7 @@
             col: "Vertical Cols", row: "Horizontal Rows", border: "Border Crop(%)", 
             cut_ratio: "Select Crop Ratio", full: "Full Original", free_trans: "Free Transform", custom: "Custom Input", 
             target_cap: "Target File Size (Auto)", 
-            p500: "Under 500KB", p500_d: "For Public Inst.", p1: "Under 1MB", p1_d: "For Web Post", p2: "Under 2MB", p2_d: "For Blog/SNS", p5: "Under 5MB", p5_d: "High Quality", 
+            p500: "Under 500KB", p1: "Under 1MB", p2: "Under 2MB", p5: "Under 5MB", 
             down: "Download", wait: "Please wait.",
             down_pair: "{n} Download", down_done_pair: "Done! {n} Download", all_done: "All Done (Restart)"
         },
@@ -509,7 +505,7 @@
             col: "纵向分割", row: "横向分割", border: "边框裁剪(%)", 
             cut_ratio: "裁剪比例", full: "原始全图", free_trans: "自由变换", custom: "自定义输入", 
             target_cap: "目标文件大小 (自动)", 
-            p500: "500KB 以下", p500_d: "公共机构提交用", p1: "1MB 以下", p1_d: "网站发布用", p2: "2MB 以下", p2_d: "博客/社交媒体用", p5: "5MB 以下", p5_d: "高画质保存用", 
+            p500: "500KB 以下", p1: "1MB 以下", p2: "2MB 以下", p5: "5MB 以下", 
             down: "下载", wait: "请稍候。",
             down_pair: "第 {n} 张下载", down_done_pair: "完成! 第 {n} 张下载", all_done: "全部完成 (重新开始)"
         },
@@ -523,7 +519,7 @@
             col: "縦の分割", row: "横の分割", border: "枠のカット(%)", 
             cut_ratio: "切り取り比率", full: "オリジナル全体", free_trans: "自由変形", custom: "比率入力", 
             target_cap: "目標ファイル容量 (自動)", 
-            p500: "500KB 以下", p500_d: "公的機関提出用", p1: "1MB 以下", p1_d: "ウェブサイト掲載用", p2: "2MB 以下", p2_d: "ブログ/SNS用", p5: "5MB 以下", p5_d: "高画質保管用", 
+            p500: "500KB 以下", p1: "1MB 以下", p2: "2MB 以下", p5: "5MB 以下", 
             down: "ダウンロード", wait: "お待ちください。",
             down_pair: "{n}番 ダウンロード", down_done_pair: "完了! {n}番 ダウンロード", all_done: "全完了 (リスタート)"
         }
@@ -582,7 +578,6 @@
         drawVisualizer(); 
     }
     
-    // 모바일 버튼 텍스트 업데이트 (다국어 지원)
     function updateButtonText() {
         const btn = document.getElementById('downloadBtn');
         if (isMobile && currentTab === 'split' && previewImg) {
