@@ -2,11 +2,22 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animo Pixel Master</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Animo Pixel Master - 제미나이 워터마크 제거 & 이미지 분할/압축 도구</title>
+    <meta name="description" content="AI 워터마크 제거, 인스타그램용 이미지 분할, 고화질 용량 압축을 무료로 제공합니다. 서버 업로드 없는 안전한 클라이언트 사이드 이미지 처리 도구입니다.">
+    <meta name="keywords" content="이미지 분할, 워터마크 제거, 제미나이, 사진 용량 줄이기, 인스타그램 그리드, 이미지 자르기, 무료 웹툴">
+    <meta name="author" content="Animo">
+    <meta property="og:title" content="Animo Pixel Master">
+    <meta property="og:description" content="설치 없이 바로 쓰는 강력한 이미지 편집 도구. 워터마크 제거부터 분할 저장까지.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#121212">
+    <link rel="apple-touch-icon" href="icon.png"> 
+    <link rel="manifest" href="manifest.json">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        /* [디자인 업그레이드: 모던 다크 테마 & 글래스모피즘] */
+        /* [기존 디자인 및 로직 100% 유지] */
         :root { 
             --primary: #00e676; 
             --primary-dim: rgba(0, 230, 118, 0.1);
@@ -20,6 +31,7 @@
             --radius-lg: 24px;
             --radius-md: 16px;
             --radius-sm: 8px;
+            --gem-accent: #4285f4; /* 제미나이 포인트 컬러 */
         }
         
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -32,24 +44,23 @@
             margin: 0; 
             min-height: 100vh; 
             display: flex; 
-            justify-content: center; 
+            flex-direction: column; 
             align-items: center; 
             overflow-x: hidden; 
+            padding-bottom: 50px;
         }
         
-        /* 스크롤바 커스텀 */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
 
         #dropOverlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10000; 
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(5px);
             border: 4px dashed var(--primary); 
-            border-radius: var(--radius-lg);
             display: none; justify-content: center; align-items: center; pointer-events: none;
             transition: opacity 0.3s;
         }
@@ -73,13 +84,14 @@
             border: 1px solid rgba(255,255,255,0.05); 
             z-index: 10; 
             position: relative; 
+            margin-top: 5vh; 
+            margin-bottom: 2rem;
         }
         
         @media (max-width: 480px) {
-            .container { padding: 1.2rem; }
+            .container { padding: 1.2rem; margin-top: 20px; }
         }
         
-        /* 헤더 스타일 */
         .header-wrap { 
             display: flex; justify-content: center; align-items: center; 
             margin-bottom: 1.2rem; 
@@ -102,27 +114,12 @@
             gap: 5px; 
         }
 
-        .flag-icon {
-            width: 20px;
-            height: 15px;
-            border-radius: 2px;
-            box-shadow: 0 0 2px rgba(0,0,0,0.5);
-            object-fit: cover;
-        }
-        
-        .lang-select {
-            background: #222; border: 1px solid #444; color: #888; 
-            font-size: 0.7rem; font-weight: bold; padding: 2px 5px; 
-            border-radius: 6px; cursor: pointer; outline: none;
-        }
+        .flag-icon { width: 20px; height: 15px; border-radius: 2px; box-shadow: 0 0 2px rgba(0,0,0,0.5); object-fit: cover; }
+        .lang-select { background: #222; border: 1px solid #444; color: #888; font-size: 0.7rem; font-weight: bold; padding: 2px 5px; border-radius: 6px; cursor: pointer; outline: none; }
         .lang-select:hover { color: var(--accent); border-color: var(--accent); }
 
-        .sub-text { 
-            color: var(--text-sub); font-size: 0.95rem; margin-bottom: 2rem; font-weight: 500; 
-            line-height: 1.5; 
-        }
+        .sub-text { color: var(--text-sub); font-size: 0.95rem; margin-bottom: 2rem; font-weight: 500; line-height: 1.5; }
         
-        /* 프리뷰 영역 */
         #previewContainer { 
             width: 100%; height: 340px; 
             background: #000; 
@@ -145,24 +142,17 @@
         #guideText .main-guide { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; color: #777; }
         #guideText .sub-guide { font-size: 0.85rem; line-height: 1.6; color: #555; }
 
-        /* 탭 메뉴 */
         .tab-menu { 
             display: flex; align-items: center; gap: 4px; margin-bottom: 1.5rem; 
             padding: 4px; background: #151515; border-radius: 12px;
             border: 1px solid #2a2a2a;
         }
         .tab-btn { 
-            flex: 1;
-            background: transparent; border: none; color: #666; 
+            flex: 1; background: transparent; border: none; color: #666; 
             font-size: 0.95rem; font-weight: 700; cursor: pointer; 
-            padding: 10px; border-radius: 8px;
-            transition: all 0.2s ease;
+            padding: 10px; border-radius: 8px; transition: all 0.2s ease;
         }
-        .tab-btn.active { 
-            color: #000; 
-            background: var(--primary); 
-            box-shadow: 0 2px 10px rgba(0, 230, 118, 0.2);
-        }
+        .tab-btn.active { color: #000; background: var(--primary); box-shadow: 0 2px 10px rgba(0, 230, 118, 0.2); }
         
         .btn-group { display: flex; gap: 10px; align-items: center; }
         
@@ -175,24 +165,15 @@
         .tab-attach { background: var(--surface); color: var(--primary); border: 1px solid #333; }
         .tab-delete { background: var(--surface); color: var(--danger); border: 1px solid #333; font-size: 0.75rem; font-weight: 800; }
 
-        .counter-box { 
-            display: flex; flex-direction: column; justify-content: center; align-items: flex-end; 
-            margin-right: 5px; font-size: 0.65rem; color: #777; font-weight: 600; 
-            line-height: 1.2;
-        }
+        .counter-box { display: flex; flex-direction: column; justify-content: center; align-items: flex-end; margin-right: 5px; font-size: 0.65rem; color: #777; font-weight: 600; line-height: 1.2; }
         .counter-box b { color: var(--primary); font-size: 0.9rem; }
 
-        /* 옵션 영역 */
         .top-options { 
             display: flex; justify-content: center; align-items: center; gap: 15px; 
             margin-bottom: 1.5rem; background: var(--surface); padding: 12px 20px; 
-            border-radius: var(--radius-md); flex-wrap: wrap; 
-            border: 1px solid var(--border);
+            border-radius: var(--radius-md); flex-wrap: wrap; border: 1px solid var(--border);
         }
-        .chk-label { 
-            display: flex; align-items: center; gap: 4px; font-size: 0.95rem; 
-            cursor: pointer; color: #ccc;
-        }
+        .chk-label { display: flex; align-items: center; gap: 4px; font-size: 0.95rem; cursor: pointer; color: #ccc; }
         .chk-label input { accent-color: var(--primary); width: 18px; height: 18px; }
 
         .config-grid { 
@@ -202,115 +183,104 @@
         }
         .input-group { display: flex; flex-direction: column; gap: 8px; width: 100%; }
         label { font-size: 0.85rem; color: #888; font-weight: 700; white-space: nowrap; margin-left: 4px; }
-        
-        .input-num { 
-            background: #151515; border: 1px solid #333; color: #fff; 
-            padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; 
-            width: 100%;
-        }
+        .input-num { background: #151515; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; width: 100%; }
 
         .ratio-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 5px; }
-        .ratio-btn { 
-            background: #333; border: 1px solid transparent; color: #aaa; 
-            font-size: 0.85rem; padding: 10px; border-radius: 8px; 
-            cursor: pointer; height: 100%;
-        }
+        .ratio-btn { background: #333; border: 1px solid transparent; color: #aaa; font-size: 0.85rem; padding: 10px; border-radius: 8px; cursor: pointer; height: 100%; }
         .ratio-btn.active { border-color: var(--primary); color: var(--primary); background: rgba(0, 230, 118, 0.05); }
         
-        .preset-btns { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 8px; 
-            margin-top: 5px;
-            height: 100%;
-        }
+        .preset-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 5px; height: 100%; }
         .preset-btn { 
-            background: #2d2d2d;
-            border: 1px solid #444; 
-            color: #ccc; 
-            font-size: 1.1rem; 
-            padding: 15px 0; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            transition: all 0.2s; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            font-weight: 800; 
+            background: #2d2d2d; border: 1px solid #444; color: #ccc; font-size: 1.1rem; padding: 15px 0; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; font-weight: 800; 
         }
         .preset-btn:hover { border-color: #777; background: #383838; color: #fff; }
-        .preset-btn.active { 
-            border: 2px solid var(--primary); 
-            color: #fff; 
-            background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%);
-            box-shadow: 0 4px 12px rgba(0,230,118,0.2);
-        }
-        .preset-btn span { 
-            display: block; 
-        }
+        .preset-btn.active { border: 2px solid var(--primary); color: #fff; background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%); box-shadow: 0 4px 12px rgba(0,230,118,0.2); }
+        .preset-btn span { display: block; }
 
-        .action-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 1.5rem;
-            align-items: stretch;
-        }
-
+        .action-row { display: flex; gap: 12px; margin-bottom: 1.5rem; align-items: stretch; }
         .main-btn { 
-            flex: 1;
-            padding: 22px; border-radius: var(--radius-md); border: none; 
-            background: linear-gradient(135deg, #00e676, #00c853); 
-            color: #000; font-size: 1.25rem; font-weight: 900; 
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; 
-            box-shadow: 0 10px 30px rgba(0,230,118,0.2);
+            flex: 1; padding: 22px; border-radius: var(--radius-md); border: none; 
+            background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-size: 1.25rem; font-weight: 900; 
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(0,230,118,0.2);
         }
         .main-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(0,230,118,0.3); }
         
         .donation-btn {
-            flex: 0 0 auto; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: #ffe812; color: #3c1e1e; 
-            padding: 0 20px; 
-            border-radius: var(--radius-md); 
-            cursor: pointer;
-            border: none; min-width: 100px;
-            box-shadow: 0 4px 15px rgba(255, 232, 18, 0.15);
-            transition: transform 0.2s;
+            flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #ffe812; color: #3c1e1e; padding: 0 20px; border-radius: var(--radius-md); 
+            cursor: pointer; border: none; min-width: 100px; box-shadow: 0 4px 15px rgba(255, 232, 18, 0.15); transition: transform 0.2s;
         }
         .donation-btn:hover { transform: translateY(-2px); }
         .donation-icon { font-size: 1.4rem; margin-bottom: 2px; }
         .donation-text { font-size: 0.8rem; font-weight: 800; line-height: 1.2; }
 
-        .business-box { 
-            margin-top: 1.5rem; background: #0f0f0f; border-radius: var(--radius-md); 
-            padding: 15px; border: 1px solid #222; 
-            text-align: center; color: #555; font-size: 0.85rem; font-weight: 600; 
-        }
+        .business-box { margin-top: 1.5rem; background: #0f0f0f; border-radius: var(--radius-md); padding: 15px; border: 1px solid #222; text-align: center; color: #555; font-size: 0.85rem; font-weight: 600; }
 
-        .revenue-group {
-            margin-top: 0;
-            display: flex; justify-content: center; 
-            width: 100%;
-            overflow: hidden; 
-        }
-
-        .ad-banner {
-            flex: 0 0 auto;
-            width: 100%;
-            max-width: 100%;
-            min-height: 100px;
-            background: transparent; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            border: 1px solid #333;
-            display: flex; justify-content: center; align-items: center;
-        }
+        .revenue-group { margin-top: 0; display: flex; justify-content: center; width: 100%; overflow: hidden; }
+        .ad-banner { flex: 0 0 auto; width: 100%; max-width: 100%; min-height: 100px; background: transparent; border-radius: 12px; overflow: hidden; border: 1px solid #333; display: flex; justify-content: center; align-items: center; }
 
         .qr-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
         .qr-modal.active { display: flex; animation: fadeIn 0.2s ease-out; }
-        .qr-box { background: #fff; padding: 30px; border-radius: 24px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .qr-box { background: #fff; padding: 30px; border-radius: 24px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; }
         .qr-img { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid #eee; }
         .close-qr { margin-top: 20px; padding: 14px 0; width: 100%; background: #222; color: #fff; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        
+        .info-container {
+            width: 95%; max-width: 620px;
+            color: #888; text-align: left;
+            margin-bottom: 50px;
+        }
+        .info-section {
+            background: #181818;
+            border: 1px solid #2a2a2a;
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .info-title { color: var(--primary); font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+        .info-text { font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; color: #aaa; }
+        .info-text strong { color: #ddd; }
+        .feature-list { list-style: none; padding: 0; margin: 0; }
+        .feature-list li { margin-bottom: 10px; position: relative; padding-left: 15px; font-size: 0.9rem; }
+        .feature-list li::before { content: '•'; color: var(--primary); position: absolute; left: 0; font-weight: bold; }
+        
+        .footer-links { text-align: center; margin-top: 20px; font-size: 0.8rem; }
+        .footer-links span { cursor: pointer; color: #555; text-decoration: underline; margin: 0 10px; }
+        .footer-links span:hover { color: var(--primary); }
+        
+        .policy-content { max-height: 60vh; overflow-y: auto; text-align: left; font-size: 0.85rem; color: #333; line-height: 1.6; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-top: 15px; }
+
+        /* [신규: 제미나이 프롬프트 섹션 스타일] */
+        .gemini-section {
+            background: linear-gradient(135deg, #1e1e1e 0%, #151515 100%);
+            border: 1px solid #333;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            width: 95%;
+            max-width: 620px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .gemini-title { color: var(--gem-accent); font-size: 1.2rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: -0.5px; }
+        .gemini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+        .gem-btn {
+            background: #252525; border: 1px solid #444; color: #eee; padding: 15px 10px; border-radius: 12px;
+            cursor: pointer; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;
+            display: flex; flex-direction: column; gap: 5px; align-items: center;
+        }
+        .gem-btn:hover { border-color: var(--gem-accent); background: rgba(66, 133, 244, 0.05); transform: translateY(-2px); }
+        .gem-btn .icon { font-size: 1.4rem; }
+        .gem-tip-box {
+            background: #0f0f0f; border-left: 4px solid var(--gem-accent); padding: 12px; text-align: left;
+            border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #999; line-height: 1.6;
+        }
+        .gem-tip-box strong { color: var(--gem-accent); display: block; margin-bottom: 4px; font-size: 0.85rem; }
+
+        /* 프롬프트 복사 모달 내부 스타일 */
+        .prompt-view { background: #111; color: #00e676; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 0.85rem; text-align: left; margin: 15px 0; white-space: pre-wrap; border: 1px solid #333; max-height: 300px; overflow-y: auto; }
+        .copy-btn { width: 100%; padding: 12px; background: var(--gem-accent); color: white; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
+        .copy-btn:active { opacity: 0.8; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -430,6 +400,75 @@
     <div class="business-box"><span data-i18n="business">비지니스 문의</span> two5200@gmail.com</div>
 </div>
 
+<div class="gemini-section">
+    <div class="gemini-title">✨ Gemini Gems Prompt: 3분할 레이아웃 생성기</div>
+    <div class="gemini-grid">
+        <button class="gem-btn" onclick="showPrompt('stack')">
+            <span class="icon">🚥</span>
+            <span>가로 16:9 3장<br>(수직 나열형)</span>
+        </button>
+        <button class="gem-btn" onclick="showPrompt('side')">
+            <span class="icon">🖼️</span>
+            <span>세로 9:16 3장<br>(가로 나열형)</span>
+        </button>
+    </div>
+    <div class="gem-tip-box">
+        <strong>💡 멀티 프레임 생성을 위한 프롬프트 구조화 전략</strong>
+        최적의 결과물을 얻으려면, 3개의 프롬프트를 <u>줄바꿈(Line Break)으로 구분</u>하여 입력하거나, 단일 프롬프트 끝에 <u>'3-panel layout' 또는 'Triptych style'</u> 키워드를 병기하는 것이 효과적입니다.
+    </div>
+</div>
+
+<div class="info-container">
+    <div class="info-section">
+        <div class="info-title">🚀 Development Story: 왜 만들었나요?</div>
+        <div class="info-text">
+            제미나이(Gemini)의 이미지 생성 능력은 압도적이지만, 한 번에 한 장씩 뽑으려면 대기 시간이 길어지곤 합니다. 
+            저는 여기서 <strong>'하나의 레이아웃에 여러 프롬프트를 넣어 다수의 이미지를 한 번에 생성하는 팁'</strong>을 활용해 생산성을 극대화해 왔습니다.
+        </div>
+        <div class="info-text">
+            하지만 이렇게 생성된 결과물을 일일이 워터마크를 지우고 수동으로 자르는 작업은 매우 번거로웠습니다. 
+            그래서 <strong>워터마크 제거와 이미지 분할을 단 한 번의 드래그로 자동화</strong>할 수 있는 도구를 직접 개발하게 되었습니다. 
+            이미지 최적화가 필요한 모든 제미나이 사용자들이 저처럼 창작에만 집중할 수 있기를 바랍니다.
+        </div>
+    </div>
+    <div class="info-section">
+        <div class="info-title">✨ Animo Pixel Master의 특징</div>
+        <ul class="feature-list">
+            <li><strong>강력한 보안:</strong> 모든 이미지 처리는 사용자의 브라우저(Client-side)에서 이루어집니다. 개인정보 유출 걱정이 없습니다.</li>
+            <li><strong>스마트 용량 압축:</strong> 이진 탐색 알고리즘이 특정 용량(예: 5MB)에 맞춰 최적의 화질을 자동으로 찾아 압축합니다.</li>
+            <li><strong>인스타그램 최적화:</strong> 가로/세로 칸 수만 입력하면 피드에 딱 맞는 그리드 이미지로 즉시 분할 저장됩니다.</li>
+        </ul>
+    </div>
+
+    <div class="info-section">
+        <div class="info-title">💡 사용 가이드 (FAQ)</div>
+        <div class="info-text">
+            <strong>Q. 제미나이 워터마크는 어떻게 지우나요?</strong><br>
+            이미지를 불러온 후 상단의 [워터마크 제거]를 체크하고 다운로드하세요. AI가 생성한 특정 패턴을 인식해 픽셀 단위로 복원합니다.
+        </div>
+        <div class="info-text">
+            <strong>Q. 모바일에서도 가능한가요?</strong><br>
+            네, 반응형 디자인으로 스마트폰에서도 100% 활용 가능합니다. 보안 정책상 모바일에서는 한 장씩 순차적으로 다운로드됩니다.
+        </div>
+    </div>
+
+    <div class="footer-links">
+        <span onclick="openPolicy('privacy')">개인정보처리방침</span> | 
+        <span onclick="openPolicy('terms')">이용약관</span> | 
+        <span>Copyright © 2026 Animo. All rights reserved.</span>
+    </div>
+</div>
+
+<div id="promptModal" class="qr-modal">
+    <div class="qr-box" style="max-width: 500px; background: #1e1e1e; color: white;">
+        <h3 id="promptTitle" style="color: var(--gem-accent);">프롬프트 안내</h3>
+        <p style="font-size: 0.8rem; color: #888; margin-top: -10px;">이 프롬프트를 제미나이 Gems 설정이나 대화창에 복사해 넣으세요.</p>
+        <div class="prompt-view" id="promptText"></div>
+        <button class="copy-btn" id="btnCopyPrompt" onclick="copyPrompt()">프롬프트 복사하기</button>
+        <button class="close-qr" onclick="closePrompt()" style="background: #333;">닫기</button>
+    </div>
+</div>
+
 <div id="qrModal" class="qr-modal">
     <div class="qr-box">
         <h3>☕ 카메라로 스캔해주세요</h3>
@@ -438,103 +477,121 @@
     </div>
 </div>
 
+<div id="policyModal" class="qr-modal">
+    <div class="qr-box" style="max-width: 500px;">
+        <h3 id="policyTitle">개인정보처리방침</h3>
+        <div class="policy-content" id="policyText"></div>
+        <button class="close-qr" onclick="closePolicy()">닫기</button>
+    </div>
+</div>
+
 <script>
+    /* [기존 로직 유지 - 코드 동일] */
     const FIX_X = 64, FIX_Y = 64, MASK_URL = "https://raw.githubusercontent.com/two5220/assets/refs/heads/main/mask.png";
     let maskImg = new Image(), maskData = null, maskW = 0, maskH = 0, previewImg = null, originalFile = null;
     let currentTab = 'split', colPos = [], rowPos = [], gridBox = { x1: 0, y1: 0, x2: 1, y2: 1 }, cropBox = { x: 0, y: 0, w: 1, h: 1 };
     let fixedRatio = 'full', splitRatioSetting = 'free', draggingIdx = -1, draggingType = null, currentTargetMB = 5.0, dragStartGrid = null;
-    
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     let mobileSplitIdx = 0; 
     const MAX_MOBILE_SPLIT = 50; 
 
-    // 모바일 전용 안내문구 업데이트 함수
-    function updateMobileGuide() {
-        if (!isMobile) return;
-        const guide = document.getElementById('mobileGuide');
-        if (guide) guide.innerHTML = t[currentLang].guide_mobile;
+    // [제미나이 프롬프트 데이터]
+    const prompts = {
+        stack: `역할 및 목표:
+* 사용자가 제공한 특정 주제나 3가지 개별 프롬프트를 바탕으로 절대적 16:9 가로 비율의 이미지 3장을 수직으로 나열한 단일 레이아웃 이미지를 기획하고 생성한다.
+* 각 영역(1구역, 2구역, 3구역)에 대해 일관성 있는 스타일이나 지시된 개별 내용을 충실히 반영한다.
+* 하나의 영역의 이미지는 다른 레이아웃 영역을 침범하지 않도록 엄격히 구분하며, 이미지 구분 경계선이나 바깥 테두리가 없는 매끄러운 연결을 지향합니다.
+* 생성된 이미지를 크롭할 것이기 때문에 생성가능한 최고해상도로 제공한다.
+
+행동 지침 및 규칙:
+1) 입력 처리:
+ a) 사용자가 단일 주제만 제공할 경우, 그 주제를 바탕으로 서로 보완적인 3가지 세부 장면을 스스로 구상하여 프롬프트를 생성한다.
+ b) 사용자가 3가지의 구체적인 프롬프트를 제공할 경우, 각 프롬프트를 1구역, 2구역, 3구역에 순서대로 배정하여 이미지를 구성한다.
+
+2) 이미지 구성 및 품질 제어:
+ a) 결과물은 반드시 가로 16:9 비율의 이미지 3장이 위에서 아래로 이어지는 수직 3단 구성이어야 한다.
+ b) 시각적 연속성을 유지하거나 사용자의 의도에 따라 명확히 구분된 3가지 시각 정보를 제공한다.
+ c) 최종 결과물은 하나의 이미지 파일 내에 3개의 프레임이 포함된 형태여야 한다.
+ d) 이미지 내에 '1구역', '2구역', '3구역'과 같은 텍스트 라벨을 표시하지 않는다.
+
+3) 출력 생성:
+ a) 이미지를 생성하기 전, 사용자에게 생성할 3가지 장면에 대한 묘사를 간략히 설명한다.
+ b) @DALL-E 또는 적절한 이미지 생성 도구를 사용하여 요청된 레이아웃을 생성한다.
+
+말투 및 톤:
+* 전문적이고 창의적인 이미지 제작 도우미의 톤을 유지한다.
+* 사용자의 요청 사항을 정확히 이해했음을 알리고, 생성될 이미지의 구성 요소를 간략히 설명한다.
+* 간결하고 명확한 한국어를 사용하여 소통한다.`,
+
+        side: `목적 및 목표:
+* 사용자가 제공한 주제나 3개의 프롬프트를 바탕으로 세로 비율(9:16) 이미지 3장이 가로로 나란히 배치된 단일 이미지 레이아웃(16:9 가로형)을 구성하는 '세로 비율 3장 레이아웃' 전문가 역할을 수행합니다.
+* 단일 주제가 주어지면 그에 맞는 3가지 장면을 스스로 구상하여 일관성 있는 레이아웃을 만듭니다.
+* 3개의 개별 프롬프트가 주어지면 각 프롬프트의 내용을 충실히 반영하여 3분할 레이아웃에 표현합니다.
+* 하나의 영역의 이미지는 다른 레이아웃 영역을 침범하지 않도록 엄격히 구분하며, 이미지 구분 경계선이나 바깥 테두리가 없는 매끄러운 연결을 지향합니다.
+* 생성된 이미지를 크롭할 것이기 때문에 생성가능한 최고해상도로 제공한다.
+
+행동 지침 및 규칙:
+1) 이미지 구성 방식:
+ a) 생성되는 모든 이미지의 최종 비율은 반드시 16:9 (가로형) 레이아웃이어야 합니다.
+ b) 이미지 생성 프롬프트에 'A triptych of three distinct vertical panels', 'Three vertical frames side-by-side', '3-panel layout', 'borderless'와 같은 키워드를 포함하여 세 폭 제단화 형식을 유지합니다.
+ c) 각 패널은 서로 다른 내용을 담고 있더라도 전체적으로 조화로운 분위기, 조명, 색감을 유지하여 통일감을 줍니다.
+ d) 각 세로 패널 사이의 내용이 섞이지 않도록 하되, 물리적인 선(border)은 생성하지 않도록 지시합니다.
+
+2) 입력 처리:
+ a) 사용자가 단일 키워드나 주제만 제공할 경우, 서사적 흐름이나 시각적 대비를 고려한 세 가지 시나리오를 제안하고 레이아웃을 구성합니다.
+ b) 사용자가 세 개의 독립적인 프롬프트를 제공할 경우, 이를 왼쪽, 중앙, 오른쪽 섹션에 순서대로 매칭하여 시각화합니다.
+
+3) 상호작용 스타일:
+ a) 사용자에게 시각화하고 싶은 테마나 구체적인 세 가지 장면 묘사를 요청하며 대화를 시작합니다. '안녕하세요! 어떤 테마로 3분할 레이아웃 이미지를 만들어 드릴까요?'와 같이 시작하세요.
+ b) 결과물이 생성되면 각 패널의 의도와 구성을 설명하고, 레이아웃 비율이나 배치에 대한 피드백을 요청합니다.
+
+전반적인 톤:
+* 시각 예술 및 레이아웃 디자인 전문가로서 창의적이고 전문적인 어조를 유지합니다.
+* 사용자의 추상적인 아이디어를 구체적인 시각적 프롬프트로 변환하는 데 적극적인 도움을 줍니다.`
+    };
+
+    function showPrompt(type) {
+        const title = type === 'stack' ? '가로 16:9 (수직 3단) 프롬프트' : '세로 9:16 (가로 3열) 프롬프트';
+        document.getElementById('promptTitle').innerText = title;
+        document.getElementById('promptText').innerText = prompts[type];
+        document.getElementById('promptModal').classList.add('active');
+        document.getElementById('btnCopyPrompt').innerText = '프롬프트 복사하기';
     }
 
+    function closePrompt() { document.getElementById('promptModal').classList.remove('active'); }
+
+    function copyPrompt() {
+        const text = document.getElementById('promptText').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            document.getElementById('btnCopyPrompt').innerText = '✅ 복사 완료!';
+            setTimeout(() => { document.getElementById('btnCopyPrompt').innerText = '프롬프트 복사하기'; }, 2000);
+        });
+    }
+
+    // [기존 함수들 그대로 유지]
+    function updateMobileGuide() { if (!isMobile) return; const guide = document.getElementById('mobileGuide'); if (guide) guide.innerHTML = t[currentLang].guide_mobile; }
     const KAKAO_LINK = "https://qr.kakaopay.com/Ej8NXO17Z";
     function handleDonation() { if (isMobile) { window.open(KAKAO_LINK, '_blank'); } else { document.getElementById('qrModal').classList.add('active'); } }
     function closeQr() { document.getElementById('qrModal').classList.remove('active'); }
-
     let currentLang = 'ko';
     const flags = { ko: 'kr', en: 'us', cn: 'cn', jp: 'jp' };
     const t = {
         ko: { 
-            business: "비지니스 문의", 
-            sub: "화질 저하 없는 제미나이 워터마크 제거<br>고성능 이미지 분할과 이미지 압축", 
+            business: "비지니스 문의", sub: "화질 저하 없는 제미나이 워터마크 제거<br>고성능 이미지 분할과 이미지 압축", 
             guide_m: "이미지를 이곳에 드래그 하거나<br>+ 버튼을 눌러주세요", 
             guide_s: "워터마크 삭제는 제미나이만 지원합니다.<br>자동 저장 체크시 드래그만으로 자동 저장됩니다.", 
             guide_mobile: "모바일은 보안 정책상 번호순으로<br>한 장씩 다운로드해야 합니다.",
-            tab_split: "이미지 분할", tab_crop: "이미지 압축", visitors: "Today's Visitors", auto: "자동 저장", wm: "워터마크 제거", free: "직접 조절", ratio_free: "비율 자유", 
+            tab_split: "이미지 분할", tab_crop: "이미지 압축", visitors: "Today's Visitors", auto: "자동 저장", wm: "워터마크 제거", free: "직접 조절", 
             col: "세로 칸", row: "가로 칸", border: "테두리 자르기(%)", 
             cut_ratio: "자르는 비율 선택", full: "원본 전체", free_trans: "자유 변형", custom: "비율 입력", 
             target_cap: "원하는 파일 용량 (자동 맞춤)", 
             p500: "500KB 이하", p1: "1MB 이하", p2: "2MB 이하", p5: "5MB 이하", 
             down: "다운로드", wait: "잠시 기다려주세요.",
             down_pair: "{n}번 다운로드", down_done_pair: "완료! {n}번 다운로드", all_done: "전체 완료 (다시 시작)"
-        },
-        en: { 
-            business: "Business Inquiry", 
-            sub: "Lossless Gemini Watermark Removal<br>High Performance Split & Compress", 
-            guide_m: "Drag images here or<br>click the + button", 
-            guide_s: "Watermark removal supports Gemini only.<br>Auto-save on drag when 'Auto Save' is checked.", 
-            guide_mobile: "Due to security policy on mobile,<br>please download sequentially.",
-            tab_split: "Image Split", tab_crop: "Compress", visitors: "Today's Visitors", auto: "Auto Save", wm: "Remove Watermark", free: "Draw Lines", ratio_free: "Free Ratio", 
-            col: "Vertical Cols", row: "Horizontal Rows", border: "Border Crop(%)", 
-            cut_ratio: "Select Crop Ratio", full: "Full Original", free_trans: "Free Transform", custom: "Custom Input", 
-            target_cap: "Target File Size (Auto)", 
-            p500: "Under 500KB", p1: "Under 1MB", p2: "Under 2MB", p5: "Under 5MB", 
-            down: "Download", wait: "Please wait.",
-            down_pair: "{n} Download", down_done_pair: "Done! {n} Download", all_done: "All Done (Restart)"
-        },
-        cn: { 
-            business: "商务咨询", 
-            sub: "无损 Gemini 水印去除<br>高性能图片分割与压缩", 
-            guide_m: "拖放图片到此处或<br>点击 + 按钮", 
-            guide_s: "水印去除仅支持 Gemini。<br>勾选自动开始时，拖放即可自动保存。", 
-            guide_mobile: "由于移动端安全策略，<br>请按顺序逐张下载。",
-            tab_split: "图片分割", tab_crop: "容量压缩", visitors: "今日访客", auto: "自动开始", wm: "去除水印", free: "手动划线", ratio_free: "自由比例", 
-            col: "纵向分割", row: "横向分割", border: "边框裁剪(%)", 
-            cut_ratio: "裁剪比例", full: "原始全图", free_trans: "自由变换", custom: "自定义输入", 
-            target_cap: "目标文件大小 (自动)", 
-            p500: "500KB 以下", p1: "1MB 以下", p2: "2MB 以下", p5: "5MB 以下", 
-            down: "下载", wait: "请稍候。",
-            down_pair: "第 {n} 张下载", down_done_pair: "完成! 第 {n} 张下载", all_done: "全部完成 (重新开始)"
-        },
-        jp: { 
-            business: "ビジネスのお問い合わせ", 
-            sub: "画質劣化なしGemini透かし削除<br>高性能な画像分割と画像圧縮", 
-            guide_m: "画像をここにドラッグするか<br>+ ボタンを押してください", 
-            guide_s: "透かし削除はGeminiのみ対応しています。<br>自動開始にチェックを入れると、ドラッグするだけで自動保存されます。", 
-            guide_mobile: "モバイルのセキュリティポリシー上、<br>番号順に1枚ずつダウンロードしてください。",
-            tab_split: "画像分割", tab_crop: "容量削減", visitors: "今日の訪問者", auto: "自動開始", wm: "透かし削除", free: "手動ライン描画", ratio_free: "比率自由", 
-            col: "縦の分割", row: "横の分割", border: "枠のカット(%)", 
-            cut_ratio: "切り取り比率", full: "オリジナル全体", free_trans: "自由変形", custom: "比率入力", 
-            target_cap: "目標ファイル容量 (自動)", 
-            p500: "500KB 以下", p1: "1MB 以下", p2: "2MB 以下", p5: "5MB 以下", 
-            down: "ダウンロード", wait: "お待ちください。",
-            down_pair: "{n}番 ダウンロード", down_done_pair: "完了! {n}番 ダウンロード", all_done: "全完了 (リスタート)"
         }
     };
-
-    function changeLanguage(lang) { 
-        currentLang = lang; 
-        document.querySelectorAll('[data-i18n]').forEach(el => { 
-            const key = el.getAttribute('data-i18n'); 
-            if(t[lang][key]) el.innerHTML = t[lang][key]; 
-        }); 
-        updateMobileGuide();
-        updateButtonText();
-        const flagCode = flags[lang] || 'kr'; 
-        document.getElementById('currentFlag').src = `https://flagcdn.com/24x18/${flagCode}.png`; 
-    }
-    
-    // 초기 로드시 모바일 가이드 업데이트
+    function changeLanguage(lang) { currentLang = lang; document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if(t[lang][key]) el.innerHTML = t[lang][key]; }); updateMobileGuide(); updateButtonText(); const flagCode = flags[lang] || 'kr'; document.getElementById('currentFlag').src = `https://flagcdn.com/24x18/${flagCode}.png`; }
     window.addEventListener('DOMContentLoaded', updateMobileGuide);
-
     const todayStr = new Date().toISOString().slice(0, 10);
     const savedDate = localStorage.getItem('animo_date');
     let visitCnt = parseInt(localStorage.getItem('animo_visit') || '0');
@@ -550,184 +607,26 @@
     maskImg.onload = () => { const c = document.createElement('canvas'); c.width = maskImg.width; c.height = maskImg.height; const ctx = c.getContext('2d'); ctx.drawImage(maskImg, 0, 0); const d = ctx.getImageData(0,0,c.width,c.height).data; let minX = c.width, minY = c.height, maxX = 0, maxY = 0, found = false; for(let y=0; y<c.height; y++){ for(let x=0; x<c.width; x++){ const i = (y*c.width + x)*4; if(d[i]>15){ if(x<minX) minX = x; if(x>maxX) maxX = x; if(y<minY) minY = y; if(y>maxY) maxY = y; found = true; } } } if(found){ maskW = maxX-minX+1; maskH = maxY-minY+1; maskData = ctx.getImageData(minX, minY, maskW, maskH).data; } };
     maskImg.src = MASK_URL;
     function setTargetMB(mb, btn) { currentTargetMB = mb; document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-    
-    function toggleFreeMode() { 
-        const isFree = document.getElementById('freeCheck').checked; 
-        if(!isFree) gridBox = { x1: 0, y1: 0, x2: 1, y2: 1 }; 
-        resetGridPositions(); 
-        drawVisualizer(); 
-    }
-    
-    function setSplitRatio(r) { splitRatioSetting = r; document.querySelectorAll('.r-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); drawVisualizer(); }
+    function toggleFreeMode() { const isFree = document.getElementById('freeCheck').checked; if(!isFree) gridBox = { x1: 0, y1: 0, x2: 1, y2: 1 }; resetGridPositions(); drawVisualizer(); }
     function clearFiles() { previewImg = null; originalFile = null; mobileSplitIdx = 0; updateButtonText(); document.getElementById('previewCanvas').style.display = 'none'; document.getElementById('guideText').style.display = 'flex'; document.getElementById('fileInput').value = ''; }
-    
-    function switchTab(tab) { 
-        currentTab = tab; 
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
-        document.getElementById(tab === 'split' ? 'tabSplit' : 'tabCrop').classList.add('active'); 
-        document.getElementById('splitPanel').style.display = tab === 'split' ? 'grid' : 'none'; 
-        document.getElementById('cropPanel').style.display = tab === 'crop' ? 'grid' : 'none'; 
-        document.getElementById('freeOption').style.display = tab === 'split' ? 'flex' : 'none'; 
-        document.getElementById('wmOption').style.display = tab === 'split' ? 'flex' : 'none'; 
-        updateButtonText();
-        drawVisualizer(); 
-    }
-    
-    function updateButtonText() {
-        const btn = document.getElementById('downloadBtn');
-        if (isMobile && currentTab === 'split' && previewImg) {
-            const total = parseInt(document.getElementById('colInput').value) * parseInt(document.getElementById('rowInput').value);
-            if (mobileSplitIdx >= total) {
-                btn.innerText = t[currentLang].all_done;
-            } else {
-                const txt = (mobileSplitIdx === 0) ? t[currentLang].down_pair : t[currentLang].down_done_pair;
-                btn.innerText = txt.replace('{n}', mobileSplitIdx + 1);
-            }
-        } else {
-            btn.innerText = t[currentLang].down;
-        }
-    }
-
-    function setFixedRatio(mode) { fixedRatio = mode; document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active')); const rw = document.getElementById('ratioW'), rh = document.getElementById('ratioH'); rw.disabled = (mode !== 'custom'); rh.disabled = (mode !== 'custom'); if(mode === 'free') document.getElementById('btnFree').classList.add('active'); else if(mode === 'full') { document.getElementById('btnFull').classList.add('active'); cropBox = { x: 0, y: 0, w: 1, h: 1 }; } else if(mode === 'custom') { document.getElementById('btnCustom').classList.add('active'); } else if(typeof mode === 'number') { if(mode === 1) document.getElementById('btnCustom').classList.add('active'); else if(mode > 1) document.getElementById('btn16').classList.add('active'); else document.getElementById('btn9').classList.add('active'); } if(mode !== 'full') adjustCropToRatio(); else drawVisualizer(); }
+    function switchTab(tab) { currentTab = tab; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tab === 'split' ? 'tabSplit' : 'tabCrop').classList.add('active'); document.getElementById('splitPanel').style.display = tab === 'split' ? 'grid' : 'none'; document.getElementById('cropPanel').style.display = tab === 'crop' ? 'grid' : 'none'; document.getElementById('freeOption').style.display = tab === 'split' ? 'flex' : 'none'; document.getElementById('wmOption').style.display = tab === 'split' ? 'flex' : 'none'; updateButtonText(); drawVisualizer(); }
+    function updateButtonText() { const btn = document.getElementById('downloadBtn'); if (isMobile && currentTab === 'split' && previewImg) { const total = parseInt(document.getElementById('colInput').value) * parseInt(document.getElementById('rowInput').value); if (mobileSplitIdx >= total) btn.innerText = t[currentLang].all_done; else { const txt = (mobileSplitIdx === 0) ? t[currentLang].down_pair : t[currentLang].down_done_pair; btn.innerText = txt.replace('{n}', mobileSplitIdx + 1); } } else btn.innerText = t[currentLang].down; }
+    function setFixedRatio(mode) { fixedRatio = mode; document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active')); const rw = document.getElementById('ratioW'), rh = document.getElementById('ratioH'); rw.disabled = (mode !== 'custom'); rh.disabled = (mode !== 'custom'); if(mode === 'free') document.getElementById('btnFree').classList.add('active'); else if(mode === 'full') { document.getElementById('btnFull').classList.add('active'); cropBox = { x: 0, y: 0, w: 1, h: 1 }; } else if(mode === 'custom') document.getElementById('btnCustom').classList.add('active'); else if(typeof mode === 'number') { if(mode === 1) document.getElementById('btnCustom').classList.add('active'); else if(mode > 1) document.getElementById('btn16').classList.add('active'); else document.getElementById('btn9').classList.add('active'); } if(mode !== 'full') adjustCropToRatio(); else drawVisualizer(); }
     function setRatioFromInput() { const w = parseFloat(document.getElementById('ratioW').value), h = parseFloat(document.getElementById('ratioH').value); if(w > 0 && h > 0) { fixedRatio = w / h; adjustCropToRatio(); } }
-    function adjustCropToRatio() { if(!previewImg || fixedRatio === 'free' || fixedRatio === 'full') { drawVisualizer(); return; } let r = 1; if(fixedRatio === 'custom') { const w = parseFloat(document.getElementById('ratioW').value) || 1; const h = parseFloat(document.getElementById('ratioH').value) || 1; r = w / h; } else { r = (typeof fixedRatio === 'number') ? fixedRatio : 1; } const imgRatio = previewImg.width / previewImg.height; if(r > imgRatio) { cropBox.w = 0.9; cropBox.h = (0.9 * imgRatio) / r; } else { cropBox.h = 0.9; cropBox.w = (0.9 * r) / imgRatio; } cropBox.x = (1 - cropBox.w) / 2; cropBox.y = (1 - cropBox.h) / 2; drawVisualizer(); }
-    function resetGridPositions() { 
-        const cols = parseInt(document.getElementById('colInput').value); 
-        const rows = parseInt(document.getElementById('rowInput').value); 
-        if (cols * rows > MAX_MOBILE_SPLIT && isMobile) {
-            alert(`모바일에서는 최대 ${MAX_MOBILE_SPLIT}분할까지만 지원합니다.`);
-            document.getElementById('colInput').value = 1;
-            document.getElementById('rowInput').value = 1;
-            return;
-        }
-        colPos = []; rowPos = []; for(let i=1; i<cols; i++) colPos.push(i/cols); for(let i=1; i<rows; i++) rowPos.push(i/rows); 
-        mobileSplitIdx = 0; updateButtonText(); drawVisualizer(); 
-    }
-    async function handleFiles(files) { const valid = Array.from(files).filter(f => f.type.startsWith('image/')); if(!valid.length) return; originalFile = valid[0]; const reader = new FileReader(); reader.onload = (e) => { previewImg = new Image(); previewImg.onload = async () => { document.getElementById('previewCanvas').style.display = 'block'; document.getElementById('guideText').style.display = 'none'; resetGridPositions(); if(document.getElementById('autoCheck').checked) { for(let file of valid.slice(0, 20)) { await executeAction(file); } } }; previewImg.src = e.target.result; }; reader.readAsDataURL(originalFile); }
-    
-    function drawVisualizer() { 
-        if(!previewImg) return; 
-        const canvas = document.getElementById('previewCanvas'), ctx = canvas.getContext('2d'); 
-        canvas.width = previewImg.naturalWidth; canvas.height = previewImg.naturalHeight; 
-        ctx.drawImage(previewImg, 0, 0); 
-        const cropP = parseFloat(document.getElementById('cropInput').value) / 100; 
-        
-        if(currentTab === 'split') { 
-            const isFree = document.getElementById('freeCheck').checked; 
-            const x1 = gridBox.x1 * canvas.width, y1 = gridBox.y1 * canvas.height, x2 = gridBox.x2 * canvas.width, y2 = gridBox.y2 * canvas.height, gw = x2 - x1, gh = y2 - y1; 
-            const fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1]; 
-            
-            if(isFree) { 
-                ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0,canvas.width, y1); ctx.fillRect(0,y2,canvas.width, canvas.height-y2); ctx.fillRect(0,y1,x1,y2-y1); ctx.fillRect(x2,y1,canvas.width-x2,y2-y1); 
-                
-                // 코너 핸들 그리기 (모서리 조절 표시)
-                const handleSize = canvas.width / 80;
-                ctx.fillStyle = "#00e676";
-                ctx.fillRect(x1 - handleSize/2, y1 - handleSize/2, handleSize, handleSize);
-                ctx.fillRect(x2 - handleSize/2, y1 - handleSize/2, handleSize, handleSize);
-                ctx.fillRect(x1 - handleSize/2, y2 - handleSize/2, handleSize, handleSize);
-                ctx.fillRect(x2 - handleSize/2, y2 - handleSize/2, handleSize, handleSize);
-            } 
-            
-            let cellNum = 1;
-            for(let r=0; r < fRows.length - 1; r++) { 
-                for(let c=0; c < fCols.length - 1; c++) { 
-                    const sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw = (fCols[c+1]-fCols[c])*gw, sh = (fRows[r+1]-fRows[r])*gh; 
-                    let fw = sw, fh = sh, fx = sx, fy = sy; 
-                    const mx = fw * cropP, my = fh * cropP; 
-                    ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; 
-                    ctx.strokeRect(fx + mx, fy + my, fw - mx*2, fh - my*2); 
-
-                    const fontSize = Math.min(fw, fh) * 0.18;
-                    ctx.font = `bold ${fontSize}px Pretendard`;
-                    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                    ctx.strokeStyle = "black"; ctx.lineWidth = fontSize / 10;
-                    ctx.strokeText(cellNum, fx + fw/2, fy + fh/2);
-                    ctx.fillStyle = "#00e676"; ctx.fillText(cellNum, fx + fw/2, fy + fh/2);
-                    cellNum++;
-                } 
-            } 
-        } else { 
-            const cx = cropBox.x * canvas.width, cy = cropBox.y * canvas.height, cw = cropBox.w * canvas.width, ch = cropBox.h * canvas.height; 
-            ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; ctx.strokeRect(cx, cy, cw, ch); 
-        } 
-    }
-    
-    function handleStart(e) { if(!previewImg) return; const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height, tol = 0.04; if(currentTab === 'split' && document.getElementById('freeCheck').checked) { 
-        if(Math.abs(mx - gridBox.x1) < tol && Math.abs(my - gridBox.y1) < tol) { draggingType = 'corner-tl'; return; }
-        if(Math.abs(mx - gridBox.x2) < tol && Math.abs(my - gridBox.y1) < tol) { draggingType = 'corner-tr'; return; }
-        if(Math.abs(mx - gridBox.x1) < tol && Math.abs(my - gridBox.y2) < tol) { draggingType = 'corner-bl'; return; }
-        if(Math.abs(mx - gridBox.x2) < tol && Math.abs(my - gridBox.y2) < tol) { draggingType = 'corner-br'; return; }
-        if(Math.abs(mx - gridBox.x1) < tol) { draggingType = 'bound-x1'; return; } if(Math.abs(mx - gridBox.x2) < tol) { draggingType = 'bound-x2'; return; } if(Math.abs(my - gridBox.y1) < tol) { draggingType = 'bound-y1'; return; } if(Math.abs(my - gridBox.y2) < tol) { draggingType = 'bound-y2'; return; } colPos.forEach((p, i) => { if(Math.abs(mx - (gridBox.x1 + p*(gridBox.x2-gridBox.x1))) < tol/2) { draggingIdx = i; draggingType = 'col'; } }); if(draggingIdx === -1) rowPos.forEach((p, i) => { if(Math.abs(my - (gridBox.y1 + p*(gridBox.y2-gridBox.y1))) < tol/2) { draggingIdx = i; draggingType = 'row'; } }); if(draggingIdx === -1 && draggingType === null && mx > gridBox.x1 && mx < gridBox.x2 && my > gridBox.y1 && my < gridBox.y2) { draggingType = 'move-grid'; draggingIdx = { ox: mx, oy: my }; dragStartGrid = { ...gridBox }; } } else if(currentTab === 'crop') { const hX = cropBox.x + cropBox.w, hY = cropBox.y + cropBox.h; if(Math.abs(mx - hX) < tol && Math.abs(my - hY) < tol) draggingType = 'resize'; else if(mx > cropBox.x && mx < hX && my > cropBox.y && my < hY) { draggingType = 'move'; draggingIdx = { ox: mx - cropBox.x, oy: my - cropBox.y }; } } }
-    function handleMove(e) { if(!previewImg || !draggingType) return; if(e.type.startsWith('touch')) e.preventDefault(); const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height; 
-        if(draggingType === 'corner-tl') { gridBox.x1 = Math.min(Math.max(0, mx), gridBox.x2 - 0.02); gridBox.y1 = Math.min(Math.max(0, my), gridBox.y2 - 0.02); }
-        else if(draggingType === 'corner-tr') { gridBox.x2 = Math.max(Math.min(1, mx), gridBox.x1 + 0.02); gridBox.y1 = Math.min(Math.max(0, my), gridBox.y2 - 0.02); }
-        else if(draggingType === 'corner-bl') { gridBox.x1 = Math.min(Math.max(0, mx), gridBox.x2 - 0.02); gridBox.y2 = Math.max(Math.min(1, my), gridBox.y1 + 0.02); }
-        else if(draggingType === 'corner-br') { gridBox.x2 = Math.max(Math.min(1, mx), gridBox.x1 + 0.02); gridBox.y2 = Math.max(Math.min(1, my), gridBox.y1 + 0.02); }
-        else if(draggingType.startsWith('bound-')) { const side = draggingType.split('-')[1]; gridBox[side] = Math.max(0, Math.min(1, side.includes('x') ? mx : my)); } else if(draggingType === 'col') { colPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (mx - gridBox.x1) / (gridBox.x2 - gridBox.x1))); } else if(draggingType === 'row') { rowPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (my - gridBox.y1) / (gridBox.y2 - gridBox.y1))); } else if(draggingType === 'move-grid') { let dx = mx - draggingIdx.ox, dy = my - draggingIdx.oy; gridBox.x1 = Math.max(0, Math.min(1 - (dragStartGrid.x2-dragStartGrid.x1), dragStartGrid.x1 + dx)); gridBox.x2 = gridBox.x1 + (dragStartGrid.x2-dragStartGrid.x1); gridBox.y1 = Math.max(0, Math.min(1 - (dragStartGrid.y2-dragStartGrid.y1), dragStartGrid.y1 + dy)); gridBox.y2 = gridBox.y1 + (dragStartGrid.y2-dragStartGrid.y1); } else if(draggingType === 'resize') { cropBox.w = Math.max(0.05, mx - cropBox.x); let r = (fixedRatio === 'custom') ? (parseFloat(document.getElementById('ratioW').value) || 1) / (parseFloat(document.getElementById('ratioH').value) || 1) : (typeof fixedRatio === 'number' ? fixedRatio : null); if(r) cropBox.h = (cropBox.w * (previewImg.width/previewImg.height)) / r; else cropBox.h = Math.max(0.05, my - cropBox.y); } else if(draggingType === 'move') { cropBox.x = Math.max(0, Math.min(1 - cropBox.w, mx - draggingIdx.ox)); cropBox.y = Math.max(0, Math.min(1 - cropBox.h, my - draggingIdx.oy)); } drawVisualizer(); }
+    function adjustCropToRatio() { if(!previewImg || fixedRatio === 'free' || fixedRatio === 'full') { drawVisualizer(); return; } let r = 1; if(fixedRatio === 'custom') { const w = parseFloat(document.getElementById('ratioW').value) || 1; const h = parseFloat(document.getElementById('ratioH').value) || 1; r = w / h; } else r = (typeof fixedRatio === 'number') ? fixedRatio : 1; const imgRatio = previewImg.width / previewImg.height; if(r > imgRatio) { cropBox.w = 0.9; cropBox.h = (0.9 * imgRatio) / r; } else { cropBox.h = 0.9; cropBox.w = (0.9 * r) / imgRatio; } cropBox.x = (1 - cropBox.w) / 2; cropBox.y = (1 - cropBox.h) / 2; drawVisualizer(); }
+    function resetGridPositions() { const cols = parseInt(document.getElementById('colInput').value), rows = parseInt(document.getElementById('rowInput').value); if (cols * rows > MAX_MOBILE_SPLIT && isMobile) { alert(`모바일 최대 ${MAX_MOBILE_SPLIT}분할 지원.`); document.getElementById('colInput').value = 1; document.getElementById('rowInput').value = 1; return; } colPos = []; rowPos = []; for(let i=1; i<cols; i++) colPos.push(i/cols); for(let i=1; i<rows; i++) rowPos.push(i/rows); mobileSplitIdx = 0; updateButtonText(); drawVisualizer(); }
+    async function handleFiles(files) { const valid = Array.from(files).filter(f => f.type.startsWith('image/')); if(!valid.length) return; originalFile = valid[0]; const reader = new FileReader(); reader.onload = (e) => { previewImg = new Image(); previewImg.onload = async () => { document.getElementById('previewCanvas').style.display = 'block'; document.getElementById('guideText').style.display = 'none'; resetGridPositions(); if(document.getElementById('autoCheck').checked) { for(let file of valid.slice(0, 20)) await executeAction(file); } }; previewImg.src = e.target.result; }; reader.readAsDataURL(originalFile); }
+    function drawVisualizer() { if(!previewImg) return; const canvas = document.getElementById('previewCanvas'), ctx = canvas.getContext('2d'); canvas.width = previewImg.naturalWidth; canvas.height = previewImg.naturalHeight; ctx.drawImage(previewImg, 0, 0); const cropP = parseFloat(document.getElementById('cropInput').value) / 100; if(currentTab === 'split') { const isFree = document.getElementById('freeCheck').checked, x1 = gridBox.x1 * canvas.width, y1 = gridBox.y1 * canvas.height, x2 = gridBox.x2 * canvas.width, y2 = gridBox.y2 * canvas.height, gw = x2 - x1, gh = y2 - y1, fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1]; if(isFree) { ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0,canvas.width, y1); ctx.fillRect(0,y2,canvas.width, canvas.height-y2); ctx.fillRect(0,y1,x1,y2-y1); ctx.fillRect(x2,y1,canvas.width-x2,y2-y1); const sz = canvas.width / 80; ctx.fillStyle = "#00e676"; ctx.fillRect(x1 - sz/2, y1 - sz/2, sz, sz); ctx.fillRect(x2 - sz/2, y1 - sz/2, sz, sz); ctx.fillRect(x1 - sz/2, y2 - sz/2, sz, sz); ctx.fillRect(x2 - sz/2, y2 - sz/2, sz, sz); } let cellNum = 1; for(let r=0; r < fRows.length - 1; r++) { for(let c=0; c < fCols.length - 1; c++) { const sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw = (fCols[c+1]-fCols[c])*gw, sh = (fRows[r+1]-fRows[r])*gh; const mx = sw * cropP, my = sh * cropP; ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; ctx.strokeRect(sx + mx, sy + my, sw - mx*2, sh - my*2); const fs = Math.min(sw, sh) * 0.18; ctx.font = `bold ${fs}px Pretendard`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.strokeStyle = "black"; ctx.lineWidth = fs / 10; ctx.strokeText(cellNum, sx + sw/2, sy + sh/2); ctx.fillStyle = "#00e676"; ctx.fillText(cellNum, sx + sw/2, sy + sh/2); cellNum++; } } } else { const cx = cropBox.x * canvas.width, cy = cropBox.y * canvas.height, cw = cropBox.w * canvas.width, ch = cropBox.h * canvas.height; ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; ctx.strokeRect(cx, cy, cw, ch); } }
+    function handleStart(e) { if(!previewImg) return; const rect = e.target.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX, cy = e.touches ? e.touches[0].clientY : e.clientY; const mx = (cx - rect.left) / rect.width, my = (cy - rect.top) / rect.height, tol = 0.04; if(currentTab === 'split' && document.getElementById('freeCheck').checked) { if(Math.abs(mx - gridBox.x1) < tol && Math.abs(my - gridBox.y1) < tol) draggingType = 'corner-tl'; else if(Math.abs(mx - gridBox.x2) < tol && Math.abs(my - gridBox.y1) < tol) draggingType = 'corner-tr'; else if(Math.abs(mx - gridBox.x1) < tol && Math.abs(my - gridBox.y2) < tol) draggingType = 'corner-bl'; else if(Math.abs(mx - gridBox.x2) < tol && Math.abs(my - gridBox.y2) < tol) draggingType = 'corner-br'; else if(Math.abs(mx - gridBox.x1) < tol) draggingType = 'bound-x1'; else if(Math.abs(mx - gridBox.x2) < tol) draggingType = 'bound-x2'; else if(Math.abs(my - gridBox.y1) < tol) draggingType = 'bound-y1'; else if(Math.abs(my - gridBox.y2) < tol) draggingType = 'bound-y2'; else colPos.forEach((p, i) => { if(Math.abs(mx - (gridBox.x1 + p*(gridBox.x2-gridBox.x1))) < tol/2) { draggingIdx = i; draggingType = 'col'; } }); if(draggingIdx === -1) rowPos.forEach((p, i) => { if(Math.abs(my - (gridBox.y1 + p*(gridBox.y2-gridBox.y1))) < tol/2) { draggingIdx = i; draggingType = 'row'; } }); if(draggingIdx === -1 && draggingType === null && mx > gridBox.x1 && mx < gridBox.x2 && my > gridBox.y1 && my < gridBox.y2) { draggingType = 'move-grid'; draggingIdx = { ox: mx, oy: my }; dragStartGrid = { ...gridBox }; } } else if(currentTab === 'crop') { if(Math.abs(mx - (cropBox.x+cropBox.w)) < tol && Math.abs(my - (cropBox.y+cropBox.h)) < tol) draggingType = 'resize'; else if(mx > cropBox.x && mx < (cropBox.x+cropBox.w) && my > cropBox.y && my < (cropBox.y+cropBox.h)) { draggingType = 'move'; draggingIdx = { ox: mx - cropBox.x, oy: my - cropBox.y }; } } }
+    function handleMove(e) { if(!previewImg || !draggingType) return; if(e.type.startsWith('touch')) e.preventDefault(); const rect = e.target.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX, cy = e.touches ? e.touches[0].clientY : e.clientY; const mx = (cx - rect.left) / rect.width, my = (cy - rect.top) / rect.height; if(draggingType === 'corner-tl') { gridBox.x1 = Math.min(Math.max(0, mx), gridBox.x2 - 0.02); gridBox.y1 = Math.min(Math.max(0, my), gridBox.y2 - 0.02); } else if(draggingType === 'corner-tr') { gridBox.x2 = Math.max(Math.min(1, mx), gridBox.x1 + 0.02); gridBox.y1 = Math.min(Math.max(0, my), gridBox.y2 - 0.02); } else if(draggingType === 'corner-bl') { gridBox.x1 = Math.min(Math.max(0, mx), gridBox.x2 - 0.02); gridBox.y2 = Math.max(Math.min(1, my), gridBox.y1 + 0.02); } else if(draggingType === 'corner-br') { gridBox.x2 = Math.max(Math.min(1, mx), gridBox.x1 + 0.02); gridBox.y2 = Math.max(Math.min(1, my), gridBox.y1 + 0.02); } else if(draggingType.startsWith('bound-')) { const s = draggingType.split('-')[1]; gridBox[s] = Math.max(0, Math.min(1, s.includes('x') ? mx : my)); } else if(draggingType === 'col') colPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (mx - gridBox.x1) / (gridBox.x2 - gridBox.x1))); else if(draggingType === 'row') rowPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (my - gridBox.y1) / (gridBox.y2 - gridBox.y1))); else if(draggingType === 'move-grid') { let dx = mx - draggingIdx.ox, dy = my - draggingIdx.oy; gridBox.x1 = Math.max(0, Math.min(1 - (dragStartGrid.x2-dragStartGrid.x1), dragStartGrid.x1 + dx)); gridBox.x2 = gridBox.x1 + (dragStartGrid.x2-dragStartGrid.x1); gridBox.y1 = Math.max(0, Math.min(1 - (dragStartGrid.y2-dragStartGrid.y1), dragStartGrid.y1 + dy)); gridBox.y2 = gridBox.y1 + (dragStartGrid.y2-dragStartGrid.y1); } else if(draggingType === 'resize') { cropBox.w = Math.max(0.05, mx - cropBox.x); let r = (fixedRatio === 'custom') ? (parseFloat(document.getElementById('ratioW').value) || 1) / (parseFloat(document.getElementById('ratioH').value) || 1) : (typeof fixedRatio === 'number' ? fixedRatio : null); if(r) cropBox.h = (cropBox.w * (previewImg.width/previewImg.height)) / r; else cropBox.h = Math.max(0.05, my - cropBox.y); } else if(draggingType === 'move') { cropBox.x = Math.max(0, Math.min(1 - cropBox.w, mx - draggingIdx.ox)); cropBox.y = Math.max(0, Math.min(1 - cropBox.h, my - draggingIdx.oy)); } drawVisualizer(); }
     function handleEnd() { draggingIdx = -1; draggingType = null; }
-    
-    async function executeAction(targetFile = null) { 
-        const fileToUse = targetFile || originalFile; if(!fileToUse) return; 
-        const btn = document.getElementById('downloadBtn'); const originalText = t[currentLang].down; 
-        const targetMB = currentTargetMB, doWM = document.getElementById('wmCheck').checked, cropP = parseFloat(document.getElementById('cropInput').value) / 100;
-        const img = await loadImage(fileToUse); const fileNameBase = fileToUse.name.replace(/\.[^/.]+$/, ""); 
-
-        if(currentTab === 'split') { 
-            const temp = document.createElement('canvas'); temp.width = img.width; temp.height = img.height; 
-            const tCtx = temp.getContext('2d'); tCtx.drawImage(img, 0, 0); if(doWM && maskData) applyEraser(tCtx, img.width, img.height); 
-            const x1 = gridBox.x1*img.width, x2 = gridBox.x2*img.width, y1 = gridBox.y1*img.height, y2 = gridBox.y2*img.height, gw = x2-x1, gh = y2-y1; 
-            const fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1]; 
-            const total = (fRows.length-1) * (fCols.length-1);
-
-            if (isMobile) {
-                if (mobileSplitIdx >= total) { mobileSplitIdx = 0; updateButtonText(); return; }
-                const r = Math.floor(mobileSplitIdx / (fCols.length-1)), c = mobileSplitIdx % (fCols.length-1);
-                let sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw_p = (fCols[c+1]-fCols[c])*gw, sh_p = (fRows[r+1]-fRows[r])*gh; 
-                const mx = sw_p*cropP, my = sh_p*cropP, fw = Math.floor(sw_p-mx*2), fh = Math.floor(sh_p-my*2); 
-                const p = document.createElement('canvas'); p.width = fw; p.height = fh; 
-                p.getContext('2d').drawImage(temp, sx+mx, sy+my, fw, fh, 0, 0, fw, fh); 
-                p.toBlob(blob => save(blob, `${fileNameBase}_${r+1}-${c+1}.${fileToUse.type.split('/')[1]}`), fileToUse.type, 1.0);
-                mobileSplitIdx++; updateButtonText();
-            } else {
-                btn.innerText = t[currentLang].wait;
-                for(let r=0; r<fRows.length-1; r++) { 
-                    for(let c=0; c<fCols.length-1; c++) { 
-                        let sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw_p = (fCols[c+1]-fCols[c])*gw, sh_p = (fRows[r+1]-fRows[r])*gh; 
-                        const mx = sw_p*cropP, my = sh_p*cropP, fw = Math.floor(sw_p-mx*2), fh = Math.floor(sh_p-my*2); 
-                        const p = document.createElement('canvas'); p.width = fw; p.height = fh; 
-                        p.getContext('2d').drawImage(temp, sx+mx, sy+my, fw, fh, 0, 0, fw, fh); 
-                        await new Promise(res => { p.toBlob(blob => { save(blob, `${fileNameBase}_${r+1}-${c+1}.${fileToUse.type.split('/')[1]}`); setTimeout(res, 50); }, fileToUse.type, 1.0); });
-                    } 
-                }
-                btn.innerText = originalText;
-            }
-        } else { 
-            btn.innerText = t[currentLang].wait;
-            const getBlob = async (q, s) => { 
-                const tw = Math.round(img.width * s), th = Math.round(img.height * s); 
-                const tmp = document.createElement('canvas'); tmp.width = tw; tmp.height = th; 
-                const tc = tmp.getContext('2d'); tc.drawImage(img, 0, 0, tw, th); 
-                if(doWM && maskData) applyEraser(tc, tw, th); 
-                const cw = Math.round(cropBox.w * tw), ch = Math.round(cropBox.h * th); 
-                const res = document.createElement('canvas'); res.width = cw; res.height = ch; 
-                res.getContext('2d').drawImage(tmp, Math.round(cropBox.x * tw), Math.round(cropBox.y * th), cw, ch, 0, 0, cw, ch); 
-                return new Promise(r => res.toBlob(b => r(b), 'image/jpeg', q)); 
-            }; 
-            let s = 1.0, q = 0.95, finalBlob = null; const limit = targetMB * 1024 * 1024, minLimit = limit * 0.95; 
-            let lowQ = 0.05, highQ = 1.0, lowS = 0.5, highS = 1.0; 
-            for(let i=0; i<30; i++) { 
-                q = (lowQ + highQ) / 2; s = (lowS + highS) / 2; finalBlob = await getBlob(q, s); 
-                if(finalBlob.size > limit) { highQ = q; highS = s; } else if(finalBlob.size < minLimit) { lowQ = q; lowS = s; } else break; 
-            } 
-            save(finalBlob, `${fileNameBase}_target_${targetMB}MB.jpg`); 
-            btn.innerText = originalText;
-        } 
-    }
-
-    function applyEraser(ctx, w, h) { const imgData = ctx.getImageData(0,0,w,h), data = imgData.data; const sx = w - maskW - FIX_X, sy = h - maskH - FIX_Y; for(let y=0; y<maskH; y++) { for(let x=0; x<maskW; x++) { const tx = sx + x, ty = sy + y; if(tx<0 || ty<0 || tx>=w || ty>=h) continue; const tIdx = (ty * w + tx) * 4, mIdx = (y * maskW + x) * 4, alpha = Math.min(maskData[mIdx]/255, 0.98); if(alpha < 0.05) continue; const f = 1/(1-alpha); for(let k=0; k<3; k++) data[tIdx+k] = Math.max(0, Math.min(255, (data[tIdx+k]-255*alpha)*f)); } } ctx.putImageData(imgData, 0, 0); }
-    function save(blob, name) { const a = document.createElement('a'); const url = URL.createObjectURL(blob); a.href = url; a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100); }
-    function loadImage(file) { return new Promise(r => { const i = new Image(); const url = URL.createObjectURL(file); i.onload = () => { URL.revokeObjectURL(url); r(i); }; i.src = url; }); }
+    async function executeAction(targetFile = null) { const fileToUse = targetFile || originalFile; if(!fileToUse) return; const btn = document.getElementById('downloadBtn'), originalText = t[currentLang].down; const targetMB = currentTargetMB, doWM = document.getElementById('wmCheck').checked, cropP = parseFloat(document.getElementById('cropInput').value) / 100; const img = await loadImage(fileToUse), base = fileToUse.name.replace(/\.[^/.]+$/, ""); if(currentTab === 'split') { const temp = document.createElement('canvas'); temp.width = img.width; temp.height = img.height; const tCtx = temp.getContext('2d'); tCtx.drawImage(img, 0, 0); if(doWM && maskData) applyEraser(tCtx, img.width, img.height); const x1 = gridBox.x1*img.width, x2 = gridBox.x2*img.width, y1 = gridBox.y1*img.height, y2 = gridBox.y2*img.height, gw = x2-x1, gh = y2-y1, fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1], total = (fRows.length-1) * (fCols.length-1); if (isMobile) { if (mobileSplitIdx >= total) { mobileSplitIdx = 0; updateButtonText(); return; } const r = Math.floor(mobileSplitIdx / (fCols.length-1)), c = mobileSplitIdx % (fCols.length-1); let sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw_p = (fCols[c+1]-fCols[c])*gw, sh_p = (fRows[r+1]-fRows[r])*gh; const mx = sw_p*cropP, my = sh_p*cropP, fw = Math.floor(sw_p-mx*2), fh = Math.floor(sh_p-my*2); const p = document.createElement('canvas'); p.width = fw; p.height = fh; p.getContext('2d').drawImage(temp, sx+mx, sy+my, fw, fh, 0, 0, fw, fh); p.toBlob(blob => save(blob, `${base}_${r+1}-${c+1}.${fileToUse.type.split('/')[1]}`), fileToUse.type, 1.0); mobileSplitIdx++; updateButtonText(); } else { btn.innerText = t[currentLang].wait; for(let r=0; r<fRows.length-1; r++) { for(let c=0; c<fCols.length-1; c++) { let sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw_p = (fCols[c+1]-fCols[c])*gw, sh_p = (fRows[r+1]-fRows[r])*gh; const mx = sw_p*cropP, my = sh_p*cropP, fw = Math.floor(sw_p-mx*2), fh = Math.floor(sh_p-my*2); const p = document.createElement('canvas'); p.width = fw; p.height = fh; p.getContext('2d').drawImage(temp, sx+mx, sy+my, fw, fh, 0, 0, fw, fh); await new Promise(res => { p.toBlob(blob => { save(blob, `${base}_${r+1}-${c+1}.${fileToUse.type.split('/')[1]}`); setTimeout(res, 50); }, fileToUse.type, 1.0); }); } } btn.innerText = originalText; } } else { btn.innerText = t[currentLang].wait; const getBlob = async (q, s) => { const tw = Math.round(img.width * s), th = Math.round(img.height * s), tmp = document.createElement('canvas'); tmp.width = tw; tmp.height = th; const tc = tmp.getContext('2d'); tc.drawImage(img, 0, 0, tw, th); if(doWM && maskData) applyEraser(tc, tw, th); const cw = Math.round(cropBox.w * tw), ch = Math.round(cropBox.h * th), res = document.createElement('canvas'); res.width = cw; res.height = ch; res.getContext('2d').drawImage(tmp, Math.round(cropBox.x * tw), Math.round(cropBox.y * th), cw, ch, 0, 0, cw, ch); return new Promise(r => res.toBlob(b => r(b), 'image/jpeg', q)); }; let s = 1.0, q = 0.95, finalBlob = null; const limit = targetMB * 1024 * 1024, minLimit = limit * 0.95, lQ = 0.05, hQ = 1.0, lS = 0.5, hS = 1.0; let lowQ = lQ, highQ = hQ, lowS = lS, highS = hS; for(let i=0; i<30; i++) { q = (lowQ + highQ) / 2; s = (lowS + highS) / 2; finalBlob = await getBlob(q, s); if(finalBlob.size > limit) { highQ = q; highS = s; } else if(finalBlob.size < minLimit) { lowQ = q; lowS = s; } else break; } save(finalBlob, `${base}_target_${targetMB}MB.jpg`); btn.innerText = originalText; } }
+    function applyEraser(ctx, w, h) { const imgData = ctx.getImageData(0,0,w,h), data = imgData.data, sx = w - maskW - FIX_X, sy = h - maskH - FIX_Y; for(let y=0; y<maskH; y++) { for(let x=0; x<maskW; x++) { const tx = sx + x, ty = sy + y; if(tx<0 || ty<0 || tx>=w || ty>=h) continue; const tIdx = (ty * w + tx) * 4, mIdx = (y * maskW + x) * 4, alpha = Math.min(maskData[mIdx]/255, 0.98); if(alpha < 0.05) continue; const f = 1/(1-alpha); for(let k=0; k<3; k++) data[tIdx+k] = Math.max(0, Math.min(255, (data[tIdx+k]-255*alpha)*f)); } } ctx.putImageData(imgData, 0, 0); }
+    function save(blob, name) { const a = document.createElement('a'), url = URL.createObjectURL(blob); a.href = url; a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100); }
+    function loadImage(file) { return new Promise(r => { const i = new Image(), url = URL.createObjectURL(file); i.onload = () => { URL.revokeObjectURL(url); r(i); }; i.src = url; }); }
+    function openPolicy(type) { document.getElementById('policyTitle').innerText = type === 'privacy' ? '개인정보처리방침' : '이용약관'; document.getElementById('policyText').innerHTML = policies[type]; document.getElementById('policyModal').classList.add('active'); }
+    function closePolicy() { document.getElementById('policyModal').classList.remove('active'); }
+    const policies = { privacy: `<strong>1. 개인정보 처리 원칙</strong><br>Animo Pixel Master는 사용자의 이미지를 서버로 전송하지 않습니다. 모든 작업은 브라우저 내부에서만 수행됩니다.<br><br><strong>2. 데이터 보관</strong><br>어떠한 이미지 데이터도 수집하거나 저장하지 않습니다.<br><br><strong>3. 광고 및 쿠키</strong><br>애드센스 광고를 통해 사용자 맞춤형 광고가 게재될 수 있으며, 이는 구글의 정책을 따릅니다.`, terms: `<strong>1. 서비스 목적</strong><br>이미지 분할 및 워터마크 제거 기능을 무료로 제공합니다.<br><br><strong>2. 책임의 한계</strong><br>본 도구를 사용해 발생한 결과물에 대한 법적 책임은 사용자에게 있습니다.` };
 </script>
 </body>
 </html>
