@@ -217,7 +217,6 @@
         }
         .ratio-btn.active { border-color: var(--primary); color: var(--primary); background: rgba(0, 230, 118, 0.05); }
         
-        /* 압축 탭 버튼 스타일 수정 (가시성 강화) */
         .preset-btns { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -229,15 +228,15 @@
             background: #2d2d2d;
             border: 1px solid #444; 
             color: #ccc; 
-            font-size: 1.1rem; /* 글자 크기 조정 */
-            padding: 15px 0; /* 패딩 조정 */
+            font-size: 1.1rem; 
+            padding: 15px 0; 
             border-radius: 12px; 
             cursor: pointer; 
             transition: all 0.2s; 
             display: flex; 
             justify-content: center; 
             align-items: center;
-            font-weight: 800; /* 굵게 */
+            font-weight: 800; 
         }
         .preset-btn:hover { border-color: #777; background: #383838; color: #fff; }
         .preset-btn.active { 
@@ -246,12 +245,10 @@
             background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%);
             box-shadow: 0 4px 12px rgba(0,230,118,0.2);
         }
-        /* 부가 설명 삭제로 인한 span 스타일 제거/수정 */
         .preset-btn span { 
             display: block; 
         }
 
-        /* 액션 로우: 커피 + 다운로드 */
         .action-row {
             display: flex;
             gap: 12px;
@@ -464,8 +461,6 @@
 
     let currentLang = 'ko';
     const flags = { ko: 'kr', en: 'us', cn: 'cn', jp: 'jp' };
-    
-    // 수정: 다국어 데이터 정리 (부가 설명 삭제, 키 제거)
     const t = {
         ko: { 
             business: "비지니스 문의", 
@@ -622,6 +617,18 @@
             const x1 = gridBox.x1 * canvas.width, y1 = gridBox.y1 * canvas.height, x2 = gridBox.x2 * canvas.width, y2 = gridBox.y2 * canvas.height, gw = x2 - x1, gh = y2 - y1; 
             const fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1]; 
             
+            if(isFree) { 
+                ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0,canvas.width, y1); ctx.fillRect(0,y2,canvas.width, canvas.height-y2); ctx.fillRect(0,y1,x1,y2-y1); ctx.fillRect(x2,y1,canvas.width-x2,y2-y1); 
+                
+                // 코너 핸들 그리기 (모서리 조절 표시)
+                const handleSize = canvas.width / 80;
+                ctx.fillStyle = "#00e676";
+                ctx.fillRect(x1 - handleSize/2, y1 - handleSize/2, handleSize, handleSize);
+                ctx.fillRect(x2 - handleSize/2, y1 - handleSize/2, handleSize, handleSize);
+                ctx.fillRect(x1 - handleSize/2, y2 - handleSize/2, handleSize, handleSize);
+                ctx.fillRect(x2 - handleSize/2, y2 - handleSize/2, handleSize, handleSize);
+            } 
+            
             let cellNum = 1;
             for(let r=0; r < fRows.length - 1; r++) { 
                 for(let c=0; c < fCols.length - 1; c++) { 
@@ -631,7 +638,6 @@
                     ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; 
                     ctx.strokeRect(fx + mx, fy + my, fw - mx*2, fh - my*2); 
 
-                    // 번호 표시 크기 축소 (기존 0.3 -> 0.18, 40% 축소)
                     const fontSize = Math.min(fw, fh) * 0.18;
                     ctx.font = `bold ${fontSize}px Pretendard`;
                     ctx.textAlign = "center"; ctx.textBaseline = "middle";
@@ -647,8 +653,18 @@
         } 
     }
     
-    function handleStart(e) { if(!previewImg) return; const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height, tol = 0.04; if(currentTab === 'split' && document.getElementById('freeCheck').checked) { if(Math.abs(mx - gridBox.x1) < tol) { draggingType = 'bound-x1'; return; } if(Math.abs(mx - gridBox.x2) < tol) { draggingType = 'bound-x2'; return; } if(Math.abs(my - gridBox.y1) < tol) { draggingType = 'bound-y1'; return; } if(Math.abs(my - gridBox.y2) < tol) { draggingType = 'bound-y2'; return; } colPos.forEach((p, i) => { if(Math.abs(mx - (gridBox.x1 + p*(gridBox.x2-gridBox.x1))) < tol/2) { draggingIdx = i; draggingType = 'col'; } }); if(draggingIdx === -1) rowPos.forEach((p, i) => { if(Math.abs(my - (gridBox.y1 + p*(gridBox.y2-gridBox.y1))) < tol/2) { draggingIdx = i; draggingType = 'row'; } }); if(draggingIdx === -1 && draggingType === null && mx > gridBox.x1 && mx < gridBox.x2 && my > gridBox.y1 && my < gridBox.y2) { draggingType = 'move-grid'; draggingIdx = { ox: mx, oy: my }; dragStartGrid = { ...gridBox }; } } else if(currentTab === 'crop') { const hX = cropBox.x + cropBox.w, hY = cropBox.y + cropBox.h; if(Math.abs(mx - hX) < tol && Math.abs(my - hY) < tol) draggingType = 'resize'; else if(mx > cropBox.x && mx < hX && my > cropBox.y && my < hY) { draggingType = 'move'; draggingIdx = { ox: mx - cropBox.x, oy: my - cropBox.y }; } } }
-    function handleMove(e) { if(!previewImg || !draggingType) return; if(e.type.startsWith('touch')) e.preventDefault(); const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height; if(draggingType.startsWith('bound-')) { const side = draggingType.split('-')[1]; gridBox[side] = Math.max(0, Math.min(1, side.includes('x') ? mx : my)); } else if(draggingType === 'col') { colPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (mx - gridBox.x1) / (gridBox.x2 - gridBox.x1))); } else if(draggingType === 'row') { rowPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (my - gridBox.y1) / (gridBox.y2 - gridBox.y1))); } else if(draggingType === 'move-grid') { let dx = mx - draggingIdx.ox, dy = my - draggingIdx.oy; gridBox.x1 = Math.max(0, Math.min(1 - (dragStartGrid.x2-dragStartGrid.x1), dragStartGrid.x1 + dx)); gridBox.x2 = gridBox.x1 + (dragStartGrid.x2-dragStartGrid.x1); gridBox.y1 = Math.max(0, Math.min(1 - (dragStartGrid.y2-dragStartGrid.y1), dragStartGrid.y1 + dy)); gridBox.y2 = gridBox.y1 + (dragStartGrid.y2-dragStartGrid.y1); } else if(draggingType === 'resize') { cropBox.w = Math.max(0.05, mx - cropBox.x); let r = (fixedRatio === 'custom') ? (parseFloat(document.getElementById('ratioW').value) || 1) / (parseFloat(document.getElementById('ratioH').value) || 1) : (typeof fixedRatio === 'number' ? fixedRatio : null); if(r) cropBox.h = (cropBox.w * (previewImg.width/previewImg.height)) / r; else cropBox.h = Math.max(0.05, my - cropBox.y); } else if(draggingType === 'move') { cropBox.x = Math.max(0, Math.min(1 - cropBox.w, mx - draggingIdx.ox)); cropBox.y = Math.max(0, Math.min(1 - cropBox.h, my - draggingIdx.oy)); } drawVisualizer(); }
+    function handleStart(e) { if(!previewImg) return; const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height, tol = 0.04; if(currentTab === 'split' && document.getElementById('freeCheck').checked) { 
+        if(Math.abs(mx - gridBox.x1) < tol && Math.abs(my - gridBox.y1) < tol) { draggingType = 'corner-tl'; return; }
+        if(Math.abs(mx - gridBox.x2) < tol && Math.abs(my - gridBox.y1) < tol) { draggingType = 'corner-tr'; return; }
+        if(Math.abs(mx - gridBox.x1) < tol && Math.abs(my - gridBox.y2) < tol) { draggingType = 'corner-bl'; return; }
+        if(Math.abs(mx - gridBox.x2) < tol && Math.abs(my - gridBox.y2) < tol) { draggingType = 'corner-br'; return; }
+        if(Math.abs(mx - gridBox.x1) < tol) { draggingType = 'bound-x1'; return; } if(Math.abs(mx - gridBox.x2) < tol) { draggingType = 'bound-x2'; return; } if(Math.abs(my - gridBox.y1) < tol) { draggingType = 'bound-y1'; return; } if(Math.abs(my - gridBox.y2) < tol) { draggingType = 'bound-y2'; return; } colPos.forEach((p, i) => { if(Math.abs(mx - (gridBox.x1 + p*(gridBox.x2-gridBox.x1))) < tol/2) { draggingIdx = i; draggingType = 'col'; } }); if(draggingIdx === -1) rowPos.forEach((p, i) => { if(Math.abs(my - (gridBox.y1 + p*(gridBox.y2-gridBox.y1))) < tol/2) { draggingIdx = i; draggingType = 'row'; } }); if(draggingIdx === -1 && draggingType === null && mx > gridBox.x1 && mx < gridBox.x2 && my > gridBox.y1 && my < gridBox.y2) { draggingType = 'move-grid'; draggingIdx = { ox: mx, oy: my }; dragStartGrid = { ...gridBox }; } } else if(currentTab === 'crop') { const hX = cropBox.x + cropBox.w, hY = cropBox.y + cropBox.h; if(Math.abs(mx - hX) < tol && Math.abs(my - hY) < tol) draggingType = 'resize'; else if(mx > cropBox.x && mx < hX && my > cropBox.y && my < hY) { draggingType = 'move'; draggingIdx = { ox: mx - cropBox.x, oy: my - cropBox.y }; } } }
+    function handleMove(e) { if(!previewImg || !draggingType) return; if(e.type.startsWith('touch')) e.preventDefault(); const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height; 
+        if(draggingType === 'corner-tl') { gridBox.x1 = Math.min(Math.max(0, mx), gridBox.x2 - 0.02); gridBox.y1 = Math.min(Math.max(0, my), gridBox.y2 - 0.02); }
+        else if(draggingType === 'corner-tr') { gridBox.x2 = Math.max(Math.min(1, mx), gridBox.x1 + 0.02); gridBox.y1 = Math.min(Math.max(0, my), gridBox.y2 - 0.02); }
+        else if(draggingType === 'corner-bl') { gridBox.x1 = Math.min(Math.max(0, mx), gridBox.x2 - 0.02); gridBox.y2 = Math.max(Math.min(1, my), gridBox.y1 + 0.02); }
+        else if(draggingType === 'corner-br') { gridBox.x2 = Math.max(Math.min(1, mx), gridBox.x1 + 0.02); gridBox.y2 = Math.max(Math.min(1, my), gridBox.y1 + 0.02); }
+        else if(draggingType.startsWith('bound-')) { const side = draggingType.split('-')[1]; gridBox[side] = Math.max(0, Math.min(1, side.includes('x') ? mx : my)); } else if(draggingType === 'col') { colPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (mx - gridBox.x1) / (gridBox.x2 - gridBox.x1))); } else if(draggingType === 'row') { rowPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (my - gridBox.y1) / (gridBox.y2 - gridBox.y1))); } else if(draggingType === 'move-grid') { let dx = mx - draggingIdx.ox, dy = my - draggingIdx.oy; gridBox.x1 = Math.max(0, Math.min(1 - (dragStartGrid.x2-dragStartGrid.x1), dragStartGrid.x1 + dx)); gridBox.x2 = gridBox.x1 + (dragStartGrid.x2-dragStartGrid.x1); gridBox.y1 = Math.max(0, Math.min(1 - (dragStartGrid.y2-dragStartGrid.y1), dragStartGrid.y1 + dy)); gridBox.y2 = gridBox.y1 + (dragStartGrid.y2-dragStartGrid.y1); } else if(draggingType === 'resize') { cropBox.w = Math.max(0.05, mx - cropBox.x); let r = (fixedRatio === 'custom') ? (parseFloat(document.getElementById('ratioW').value) || 1) / (parseFloat(document.getElementById('ratioH').value) || 1) : (typeof fixedRatio === 'number' ? fixedRatio : null); if(r) cropBox.h = (cropBox.w * (previewImg.width/previewImg.height)) / r; else cropBox.h = Math.max(0.05, my - cropBox.y); } else if(draggingType === 'move') { cropBox.x = Math.max(0, Math.min(1 - cropBox.w, mx - draggingIdx.ox)); cropBox.y = Math.max(0, Math.min(1 - cropBox.h, my - draggingIdx.oy)); } drawVisualizer(); }
     function handleEnd() { draggingIdx = -1; draggingType = null; }
     
     async function executeAction(targetFile = null) { 
