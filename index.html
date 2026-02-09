@@ -79,10 +79,10 @@
             .container { padding: 1.2rem; }
         }
         
-        /* 헤더 스타일 */
+        /* 헤더 스타일 수정: 간격 축소 */
         .header-wrap { 
             display: flex; justify-content: center; align-items: center; 
-            margin-bottom: 3.5rem; /* 언어 선택창 공간 확보 */
+            margin-bottom: 1.5rem; /* 3.5rem -> 1.5rem으로 대폭 축소 */
             position: relative; width: 100%; 
         }
         h1 { 
@@ -96,8 +96,8 @@
         .lang-wrapper {
             position: absolute; 
             right: 0;
-            /* 타이틀과 서브텍스트 사이 정중앙 위치 조정 */
-            bottom: -45px; 
+            /* y축 위로 올림: 타이틀 바로 밑에 밀착 */
+            bottom: -28px; 
             display: flex;
             align-items: center;
             gap: 5px; 
@@ -258,8 +258,18 @@
             line-height: 1.1;
         }
 
+        /* [NEW] 다운로드 + 커피 버튼을 묶는 컨테이너 */
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1.5rem; /* 배너와의 간격 */
+            align-items: stretch; /* 버튼 높이 동일하게 */
+        }
+
         .main-btn { 
-            width: 100%; padding: 22px; border-radius: var(--radius-md); border: none; 
+            /* width: 100% 제거하고 flex로 채움 */
+            flex: 1;
+            padding: 22px; border-radius: var(--radius-md); border: none; 
             background: linear-gradient(135deg, #00e676, #00c853); 
             color: #000; font-size: 1.25rem; font-weight: 900; 
             cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; 
@@ -274,16 +284,18 @@
         }
 
         .revenue-group {
-            margin-top: 1.5rem;
-            display: flex; gap: 12px; align-items: stretch; justify-content: center;
-            flex-wrap: wrap; 
+            /* 이제 커피 버튼이 빠져서 배너만 중앙 정렬 */
+            margin-top: 0;
+            display: flex; justify-content: center; 
+            width: 100%;
         }
 
         .ad-banner {
-            /* 배너 강제 크기 및 투명 배경 처리 */
+            /* 수정: 가로 폭 제한 해제 및 반응형 처리 */
             flex: 0 0 auto;
-            width: 320px;
-            height: 100px;
+            width: 100%; /* 부모에 맞춤 */
+            max-width: 100%; /* 반응형 */
+            min-height: 100px;
             background: transparent; 
             border-radius: 12px; 
             overflow: visible;
@@ -295,12 +307,16 @@
             flex: 0 0 auto; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             background: #ffe812; color: #3c1e1e; 
-            padding: 0 24px; border-radius: 12px; cursor: pointer;
-            border: none; min-width: 110px;
+            padding: 0 20px; /* 좌우 여백 */
+            border-radius: var(--radius-md); /* 메인 버튼과 통일감 */
+            cursor: pointer;
+            border: none; min-width: 100px;
             box-shadow: 0 4px 15px rgba(255, 232, 18, 0.15);
+            transition: transform 0.2s;
         }
-        .donation-icon { font-size: 1.6rem; margin-bottom: 4px; }
-        .donation-text { font-size: 0.85rem; font-weight: 800; line-height: 1.3; }
+        .donation-btn:hover { transform: translateY(-2px); }
+        .donation-icon { font-size: 1.4rem; margin-bottom: 2px; }
+        .donation-text { font-size: 0.8rem; font-weight: 800; line-height: 1.2; }
 
         .qr-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
         .qr-modal.active { display: flex; animation: fadeIn 0.2s ease-out; }
@@ -397,17 +413,20 @@
         </div>
     </div>
 
-    <button class="main-btn" onclick="executeAction()" data-i18n="down">다운로드</button>
+    <div class="action-row">
+        <div class="donation-btn" onclick="handleDonation()">
+            <span class="donation-icon">☕</span>
+            <span class="donation-text">개발자에게<br>커피 쏘기</span>
+        </div>
+        <button class="main-btn" onclick="executeAction()" data-i18n="down">다운로드</button>
+    </div>
+
     <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/*" style="display:none;" onchange="handleFiles(this.files)">
 
     <div class="revenue-group">
         <div class="ad-banner">
             <script src="https://ads-partners.coupang.com/g.js"></script>
             <script>new PartnersCoupang.G({"id":944285,"template":"carousel","trackingCode":"AF6557483","width":"320","height":"100","tsource":""});</script>
-        </div>
-        <div class="donation-btn" onclick="handleDonation()">
-            <span class="donation-icon">☕</span>
-            <span class="donation-text">개발자에게<br>커피 쏘기</span>
         </div>
     </div>
 
