@@ -81,7 +81,8 @@
         /* 헤더 스타일 */
         .header-wrap { 
             display: flex; justify-content: center; align-items: center; 
-            margin-bottom: 0.5rem; position: relative; width: 100%; 
+            margin-bottom: 2rem; /* 수정: 언어 선택기 공간 확보를 위해 여백 증가 */
+            position: relative; width: 100%; 
         }
         h1 { 
             color: var(--primary); margin: 0; font-weight: 900; font-size: 2rem; 
@@ -94,7 +95,7 @@
         .lang-wrapper {
             position: absolute; 
             right: 0;
-            bottom: -2px;
+            bottom: -35px; /* 수정: 타이틀과 겹치지 않도록 아래로 이동 */
             display: flex;
             align-items: center;
             gap: 5px; 
@@ -117,6 +118,7 @@
 
         .sub-text { 
             color: var(--text-sub); font-size: 0.95rem; margin-bottom: 2rem; font-weight: 500; 
+            line-height: 1.5; /* 줄 간격 추가 */
         }
         
         /* 프리뷰 영역 */
@@ -320,7 +322,7 @@
         </div>
     </div>
 
-    <p class="sub-text" data-i18n="sub">화질 저하 없는 제미나이 워터마크 제거 · 이미지 분할 · 이미지 압축</p>
+    <p class="sub-text" data-i18n="sub">화질 저하 없는 제미나이 워터마크 제거<br>고성능 이미지 분할과 이미지 압축</p>
 
     <div id="previewContainer">
         <div id="guideText">
@@ -426,7 +428,8 @@
     let currentLang = 'ko';
     const flags = { ko: 'kr', en: 'us', cn: 'cn', jp: 'jp' };
     const t = {
-        ko: { business: "비지니스 문의", sub: "화질 저하 없는 제미나이 워터마크 제거 · 이미지 분할 · 이미지 압축", guide_m: "이미지를 이곳에 드래그 하거나<br>+ 버튼을 눌러주세요", guide_s: "워터마크 삭제는 제미나이만 지원합니다.<br>자동 저장 체크시 드래그만으로 자동 저장됩니다.", tab_split: "이미지 분할", tab_crop: "이미지 압축", visitors: "Today's Visitors", auto: "자동 저장", wm: "워터마크 제거", free: "직접 조절", ratio_free: "비율 자유", col: "가로 칸", row: "세로 칸", border: "테두리 자르기(%)", cut_ratio: "자르는 비율 선택", full: "원본 전체", free_trans: "자유 변형", custom: "비율 입력", target_cap: "원하는 파일 용량 (자동 맞춤)", p500: "500KB 이하", p500_d: "공공기관 제출용", p1: "1MB 이하", p1_d: "웹사이트 게시용", p2: "2MB 이하", p2_d: "블로그/SNS용", p5: "5MB 이하", p5_d: "고화질 보관용", down: "다운로드", wait: "잠시 기다려주세요." },
+        // 수정: 모바일 텍스트 줄바꿈 반영
+        ko: { business: "비지니스 문의", sub: "화질 저하 없는 제미나이 워터마크 제거<br>고성능 이미지 분할과 이미지 압축", guide_m: "이미지를 이곳에 드래그 하거나<br>+ 버튼을 눌러주세요", guide_s: "워터마크 삭제는 제미나이만 지원합니다.<br>자동 저장 체크시 드래그만으로 자동 저장됩니다.", tab_split: "이미지 분할", tab_crop: "이미지 압축", visitors: "Today's Visitors", auto: "자동 저장", wm: "워터마크 제거", free: "직접 조절", ratio_free: "비율 자유", col: "가로 칸", row: "세로 칸", border: "테두리 자르기(%)", cut_ratio: "자르는 비율 선택", full: "원본 전체", free_trans: "자유 변형", custom: "비율 입력", target_cap: "원하는 파일 용량 (자동 맞춤)", p500: "500KB 이하", p500_d: "공공기관 제출용", p1: "1MB 이하", p1_d: "웹사이트 게시용", p2: "2MB 이하", p2_d: "블로그/SNS용", p5: "5MB 이하", p5_d: "고화질 보관용", down: "다운로드", wait: "잠시 기다려주세요." },
         en: { business: "Business Inquiry", sub: "Lossless Gemini Watermark Removal · Image Split · Compress", guide_m: "Drag images here or<br>click the + button", guide_s: "Watermark removal supports Gemini only.<br>Auto-save on drag when 'Auto Save' is checked.", tab_split: "Image Split", tab_crop: "Compress", visitors: "Today's Visitors", auto: "Auto Save", wm: "Remove Watermark", free: "Draw Lines", ratio_free: "Free Ratio", col: "Columns", row: "Rows", border: "Border Crop(%)", cut_ratio: "Select Crop Ratio", full: "Full Original", free_trans: "Free Transform", custom: "Custom Input", target_cap: "Target File Size (Auto)", p500: "Under 500KB", p500_d: "For Public Inst.", p1: "Under 1MB", p1_d: "For Web Post", p2: "Under 2MB", p2_d: "For Blog/SNS", p5: "Under 5MB", p5_d: "High Quality", down: "Download", wait: "Please wait." },
         cn: { business: "商务咨询", sub: "无损 Gemini 水印去除 · 图片分割 · 压缩", guide_m: "拖放图片到此处或<br>点击 + 按钮", guide_s: "水印去除仅支持 Gemini。<br>勾选自动开始时，拖放即可自动保存。", tab_split: "图片分割", tab_crop: "容量压缩", visitors: "今日访客", auto: "自动开始", wm: "去除水印", free: "手动划线", ratio_free: "自由比例", col: "列数", row: "行数", border: "边框裁剪(%)", cut_ratio: "裁剪比例", full: "原始全图", free_trans: "自由变换", custom: "自定义输入", target_cap: "目标文件大小 (自动)", p500: "500KB 以下", p500_d: "公共机构提交用", p1: "1MB 以下", p1_d: "网站发布用", p2: "2MB 以下", p2_d: "博客/社交媒体用", p5: "5MB 以下", p5_d: "高画质保存用", down: "下载", wait: "请稍候。" },
         jp: { business: "ビジネスのお問い合わせ", sub: "画質劣化なしGemini透かし削除 · 画像分割 · 容量削減", guide_m: "画像をここにドラッグするか<br>+ ボタンを押してください", guide_s: "透かし削除はGeminiのみ対応しています。<br>自動開始にチェックを入れると、ドラッグするだけで自動保存されます。", tab_split: "画像分割", tab_crop: "容量削減", visitors: "今日の訪問者", auto: "自動開始", wm: "透かし削除", free: "手動ライン描画", ratio_free: "比率自由", col: "横のマス", row: "縦のマス", border: "枠のカット(%)", cut_ratio: "切り取り比率", full: "オリジナル全体", free_trans: "自由変形", custom: "比率入力", target_cap: "目標ファイル容量 (自動)", p500: "500KB 以下", p500_d: "公적기관제출용", p1: "1MB 이하", p1_d: "ウェブ사이트掲載用", p2: "2MB 이하", p2_d: "ブログ/SNS用", p5: "5MB 이하", p5_d: "高画質保管용", down: "ダウンロード", wait: "お待ちください。" }
@@ -448,10 +451,30 @@
     maskImg.onload = () => { const c = document.createElement('canvas'); c.width = maskImg.width; c.height = maskImg.height; const ctx = c.getContext('2d'); ctx.drawImage(maskImg, 0, 0); const d = ctx.getImageData(0,0,c.width,c.height).data; let minX = c.width, minY = c.height, maxX = 0, maxY = 0, found = false; for(let y=0; y<c.height; y++){ for(let x=0; x<c.width; x++){ const i = (y*c.width + x)*4; if(d[i]>15){ if(x<minX) minX = x; if(x>maxX) maxX = x; if(y<minY) minY = y; if(y>maxY) maxY = y; found = true; } } } if(found){ maskW = maxX-minX+1; maskH = maxY-minY+1; maskData = ctx.getImageData(minX, minY, maskW, maskH).data; } };
     maskImg.src = MASK_URL;
     function setTargetMB(mb, btn) { currentTargetMB = mb; document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-    function toggleFreeMode() { const isFree = document.getElementById('freeCheck').checked; document.getElementById('splitPanel').style.display = isFree ? 'grid' : 'none'; if(!isFree) gridBox = { x1: 0, y1: 0, x2: 1, y2: 1 }; resetGridPositions(); switchTab('split'); }
+    
+    // 수정: 직접 조절 체크 해제 시 입력창(splitPanel)이 사라지는 버그 수정 (display none 제거)
+    function toggleFreeMode() { 
+        const isFree = document.getElementById('freeCheck').checked; 
+        if(!isFree) gridBox = { x1: 0, y1: 0, x2: 1, y2: 1 }; 
+        resetGridPositions(); 
+        drawVisualizer(); 
+    }
+    
     function setSplitRatio(r) { splitRatioSetting = r; document.querySelectorAll('.r-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); drawVisualizer(); }
     function clearFiles() { previewImg = null; originalFile = null; document.getElementById('previewCanvas').style.display = 'none'; document.getElementById('guideText').style.display = 'flex'; document.getElementById('fileInput').value = ''; }
-    function switchTab(tab) { currentTab = tab; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tab === 'split' ? 'tabSplit' : 'tabCrop').classList.add('active'); document.getElementById('splitPanel').style.display = tab === 'split' ? 'grid' : 'none'; document.getElementById('cropPanel').style.display = tab === 'crop' ? 'grid' : 'none'; document.getElementById('freeOption').style.display = tab === 'split' ? 'flex' : 'none'; document.getElementById('wmOption').style.display = tab === 'split' ? 'flex' : 'none'; if(tab === 'split') toggleFreeMode(); drawVisualizer(); }
+    
+    // 수정: 탭 전환 시 splitPanel 강제 표시 보장
+    function switchTab(tab) { 
+        currentTab = tab; 
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+        document.getElementById(tab === 'split' ? 'tabSplit' : 'tabCrop').classList.add('active'); 
+        document.getElementById('splitPanel').style.display = tab === 'split' ? 'grid' : 'none'; 
+        document.getElementById('cropPanel').style.display = tab === 'crop' ? 'grid' : 'none'; 
+        document.getElementById('freeOption').style.display = tab === 'split' ? 'flex' : 'none'; 
+        document.getElementById('wmOption').style.display = tab === 'split' ? 'flex' : 'none'; 
+        if(tab === 'split') drawVisualizer(); 
+    }
+    
     function setFixedRatio(mode) { fixedRatio = mode; document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active')); const rw = document.getElementById('ratioW'), rh = document.getElementById('ratioH'); rw.disabled = (mode !== 'custom'); rh.disabled = (mode !== 'custom'); if(mode === 'free') document.getElementById('btnFree').classList.add('active'); else if(mode === 'full') { document.getElementById('btnFull').classList.add('active'); cropBox = { x: 0, y: 0, w: 1, h: 1 }; } else if(mode === 'custom') { document.getElementById('btnCustom').classList.add('active'); } else if(typeof mode === 'number') { if(mode === 1) document.getElementById('btnCustom').classList.add('active'); else if(mode > 1) document.getElementById('btn16').classList.add('active'); else document.getElementById('btn9').classList.add('active'); } if(mode !== 'full') adjustCropToRatio(); else drawVisualizer(); }
     function setRatioFromInput() { const w = parseFloat(document.getElementById('ratioW').value), h = parseFloat(document.getElementById('ratioH').value); if(w > 0 && h > 0) { fixedRatio = w / h; adjustCropToRatio(); } }
     function adjustCropToRatio() { if(!previewImg || fixedRatio === 'free' || fixedRatio === 'full') { drawVisualizer(); return; } let r = 1; if(fixedRatio === 'custom') { const w = parseFloat(document.getElementById('ratioW').value) || 1; const h = parseFloat(document.getElementById('ratioH').value) || 1; r = w / h; } else { r = (typeof fixedRatio === 'number') ? fixedRatio : 1; } const imgRatio = previewImg.width / previewImg.height; if(r > imgRatio) { cropBox.w = 0.9; cropBox.h = (0.9 * imgRatio) / r; } else { cropBox.h = 0.9; cropBox.w = (0.9 * r) / imgRatio; } cropBox.x = (1 - cropBox.w) / 2; cropBox.y = (1 - cropBox.h) / 2; drawVisualizer(); }
@@ -462,7 +485,7 @@
     function handleMove(e) { if(!previewImg || !draggingType) return; if(e.type.startsWith('touch')) e.preventDefault(); const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height; if(draggingType.startsWith('bound-')) { const side = draggingType.split('-')[1]; gridBox[side] = Math.max(0, Math.min(1, side.includes('x') ? mx : my)); } else if(draggingType === 'col') { colPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (mx - gridBox.x1) / (gridBox.x2 - gridBox.x1))); } else if(draggingType === 'row') { rowPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (my - gridBox.y1) / (gridBox.y2 - gridBox.y1))); } else if(draggingType === 'move-grid') { let dx = mx - draggingIdx.ox, dy = my - draggingIdx.oy; gridBox.x1 = Math.max(0, Math.min(1 - (dragStartGrid.x2-dragStartGrid.x1), dragStartGrid.x1 + dx)); gridBox.x2 = gridBox.x1 + (dragStartGrid.x2-dragStartGrid.x1); gridBox.y1 = Math.max(0, Math.min(1 - (dragStartGrid.y2-dragStartGrid.y1), dragStartGrid.y1 + dy)); gridBox.y2 = gridBox.y1 + (dragStartGrid.y2-dragStartGrid.y1); } else if(draggingType === 'resize') { cropBox.w = Math.max(0.05, mx - cropBox.x); let r = (fixedRatio === 'custom') ? (parseFloat(document.getElementById('ratioW').value) || 1) / (parseFloat(document.getElementById('ratioH').value) || 1) : (typeof fixedRatio === 'number' ? fixedRatio : null); if(r) cropBox.h = (cropBox.w * (previewImg.width/previewImg.height)) / r; else cropBox.h = Math.max(0.05, my - cropBox.y); } else if(draggingType === 'move') { cropBox.x = Math.max(0, Math.min(1 - cropBox.w, mx - draggingIdx.ox)); cropBox.y = Math.max(0, Math.min(1 - cropBox.h, my - draggingIdx.oy)); } drawVisualizer(); }
     function handleEnd() { draggingIdx = -1; draggingType = null; }
     
-    // 수정: 모바일 다운로드 호환성 강화 (순차 다운로드 및 삼성 인터넷 버그 픽스)
+    // 수정: 다운로드 딜레이 1000ms -> 1500ms로 증가 (삼성인터넷 등 씹힘 방지)
     async function executeAction(targetFile = null) { 
         const fileToUse = targetFile || originalFile; 
         if(!fileToUse) return; 
@@ -519,12 +542,12 @@
                     
                     let ext = currentFileType.includes('png') ? 'png' : (currentFileType.includes('webp') ? 'webp' : 'jpg'); 
                     
-                    // 삼성 인터넷 다운로드 씹힘 방지: 딜레이를 1초로 대폭 증가
+                    // 삼성 인터넷 다운로드 씹힘 방지: 딜레이를 1.5초로 증가
                     await new Promise(resolve => {
                         p.toBlob(blob => {
                             save(blob, `${fileNameBase}_${r+1}-${c+1}-split.${ext}`);
-                            // 모바일 브라우저가 이전 다운로드를 처리할 시간을 충분히 줌 (1000ms)
-                            setTimeout(resolve, 1000);
+                            // 모바일 브라우저가 이전 다운로드를 처리할 시간을 충분히 줌 (1500ms)
+                            setTimeout(resolve, 1500);
                         }, currentFileType || 'image/jpeg', 1.0);
                     });
                 } 
