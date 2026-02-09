@@ -79,7 +79,7 @@
             .container { padding: 1.2rem; }
         }
         
-        /* 헤더 스타일: 간격 및 y축 위치 최적화 */
+        /* 헤더 스타일: 기존 간격 유지 */
         .header-wrap { 
             display: flex; justify-content: center; align-items: center; 
             margin-bottom: 1.2rem; 
@@ -96,7 +96,7 @@
         .lang-wrapper {
             position: absolute; 
             right: 0;
-            bottom: -25px; /* 타이틀과 워터마크 제거 문구 정중앙 배치 */
+            bottom: -25px; 
             display: flex;
             align-items: center;
             gap: 5px; 
@@ -296,6 +296,14 @@
             text-align: center; color: #555; font-size: 0.85rem; font-weight: 600; 
         }
 
+        /* 배너 튀어나옴 방지 핵심 CSS */
+        .revenue-group {
+            margin-top: 0;
+            display: flex; justify-content: center; 
+            width: 100%;
+            overflow: hidden; /* 영역 밖으로 절대 안나감 */
+        }
+
         .ad-banner {
             flex: 0 0 auto;
             width: 100%;
@@ -303,7 +311,7 @@
             min-height: 100px;
             background: transparent; 
             border-radius: 12px; 
-            overflow: visible;
+            overflow: hidden; /* 배너가 커도 박스 안에 가둠 */
             border: 1px solid #333;
             display: flex; justify-content: center; align-items: center;
         }
@@ -415,7 +423,18 @@
 
     <div class="revenue-group">
         <div class="ad-banner" id="bannerBox">
-            </div>
+            <script src="https://ads-partners.coupang.com/g.js"></script>
+            <script>
+                (function() {
+                    const isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (isMob) {
+                        new PartnersCoupang.G({"id":963994,"trackingCode":"AF6557483","subId":null,"template":"carousel","width":"320","height":"100"});
+                    } else {
+                        new PartnersCoupang.G({"id":944285,"trackingCode":"AF6557483","subId":null,"template":"carousel","width":"580","height":"100"});
+                    }
+                })();
+            </script>
+        </div>
     </div>
 
     <div class="business-box"><span data-i18n="business">비지니스 문의</span> two5200@gmail.com</div>
@@ -437,24 +456,16 @@
     
     // 모바일 전용 상태값
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    let mobileSplitIdx = 0; // 모바일 현재 다운로드 순서
-    const MAX_MOBILE_SPLIT = 50; // 보고: 최대 50장 제한
+    let mobileSplitIdx = 0; 
+    const MAX_MOBILE_SPLIT = 50; 
 
-    // 기기별 배너 주입 로직
-    window.onload = () => {
-        const bannerBox = document.getElementById('bannerBox');
-        const script = document.createElement('script');
-        script.src = "https://ads-partners.coupang.com/g.js";
-        script.onload = () => {
-            if (isMobile) {
-                new PartnersCoupang.G({"id":963994,"trackingCode":"AF6557483","subId":null,"template":"carousel","width":"320","height":"100"});
-                document.getElementById('mobileGuide').innerHTML += "<br><b style='color:#00e676;'>모바일은 보안 정책상 번호순으로 한 장씩 다운로드해야 합니다.</b>";
-            } else {
-                new PartnersCoupang.G({"id":944285,"trackingCode":"AF6557483","subId":null,"template":"carousel","width":"580","height":"100"});
-            }
-        };
-        document.head.appendChild(script);
-    };
+    // 안내문구 로직: 광고 차단 시에도 나오도록 로딩 시점에 독립 실행
+    window.addEventListener('DOMContentLoaded', () => {
+        if (isMobile) {
+            const guide = document.getElementById('mobileGuide');
+            if(guide) guide.innerHTML += "<br><b style='color:#00e676;'>모바일은 보안 정책상 번호순으로 한 장씩 다운로드해야 합니다.</b>";
+        }
+    });
 
     const KAKAO_LINK = "https://qr.kakaopay.com/Ej8NXO17Z";
     function handleDonation() { if (isMobile) { window.open(KAKAO_LINK, '_blank'); } else { document.getElementById('qrModal').classList.add('active'); } }
@@ -466,7 +477,7 @@
         ko: { business: "비지니스 문의", sub: "화질 저하 없는 제미나이 워터마크 제거<br>고성능 이미지 분할과 이미지 압축", guide_m: "이미지를 이곳에 드래그 하거나<br>+ 버튼을 눌러주세요", guide_s: "워터마크 삭제는 제미나이만 지원합니다.<br>자동 저장 체크시 드래그만으로 자동 저장됩니다.", tab_split: "이미지 분할", tab_crop: "이미지 압축", visitors: "Today's Visitors", auto: "자동 저장", wm: "워터마크 제거", free: "직접 조절", ratio_free: "비율 자유", col: "가로 칸", row: "세로 칸", border: "테두리 자르기(%)", cut_ratio: "자르는 비율 선택", full: "원본 전체", free_trans: "자유 변형", custom: "비율 입력", target_cap: "원하는 파일 용량 (자동 맞춤)", p500: "500KB 이하", p500_d: "공공기관 제출용", p1: "1MB 이하", p1_d: "웹사이트 게시용", p2: "2MB 이하", p2_d: "블로그/SNS용", p5: "5MB 이하", p5_d: "고화질 보관용", down: "다운로드", wait: "잠시 기다려주세요." },
         en: { business: "Business Inquiry", sub: "Lossless Gemini Watermark Removal · Image Split · Compress", guide_m: "Drag images here or<br>click the + button", guide_s: "Watermark removal supports Gemini only.<br>Auto-save on drag when 'Auto Save' is checked.", tab_split: "Image Split", tab_crop: "Compress", visitors: "Today's Visitors", auto: "Auto Save", wm: "Remove Watermark", free: "Draw Lines", ratio_free: "Free Ratio", col: "Columns", row: "Rows", border: "Border Crop(%)", cut_ratio: "Select Crop Ratio", full: "Full Original", free_trans: "Free Transform", custom: "Custom Input", target_cap: "Target File Size (Auto)", p500: "Under 500KB", p500_d: "For Public Inst.", p1: "Under 1MB", p1_d: "For Web Post", p2: "Under 2MB", p2_d: "For Blog/SNS", p5: "Under 5MB", p5_d: "High Quality", down: "Download", wait: "Please wait." },
         cn: { business: "商务咨询", sub: "无损 Gemini 水印去除 · 图片分割 · 压缩", guide_m: "拖放图片到此处或<br>点击 + 按钮", guide_s: "水印去除仅支持 Gemini。<br>勾选自动开始时，拖放即可自动保存。", tab_split: "图片分割", tab_crop: "容量压缩", visitors: "今日访客", auto: "自动开始", wm: "去除水印", free: "手动划线", ratio_free: "自由比例", col: "列数", row: "行数", border: "边框裁剪(%)", cut_ratio: "裁剪比例", full: "原始全图", free_trans: "自由变换", custom: "自定义输入", target_cap: "目标文件大小 (自动)", p500: "500KB 以下", p500_d: "公共机构提交用", p1: "1MB 이하", p1_d: "网站发布用", p2: "2MB 이하", p2_d: "博客/社交媒体용", p5: "5MB 이하", p5_d: "高画질保存용", down: "下载", wait: "请稍候。" },
-        jp: { business: "ビジネスのお問い合わせ", sub: "画質劣化なしGemini透かし削除 · 画像分割 · 容量削減", guide_m: "画像を 여기에 드래그하거나<br>+ ボタンを押してください", guide_s: "透かし削除はGeminiのみ対応しています。<br>自動開始にチェックを入れると、ドラッグするだけで自動保存されます。", tab_split: "画像分割", tab_crop: "容量削減", visitors: "今日の訪問者", auto: "自動開始", wm: "透かし削除", free: "手動ライン描画", ratio_free: "比率自由", col: "横のマス", row: "縦のマス", border: "枠のカット(%)", cut_ratio: "切り取り比率", full: "オリジナル全体", free_trans: "自由変形", custom: "比率入力", target_cap: "目標ファイル容量 (自動)", p500: "500KB 以下", p500_d: "公적기관제출용", p1: "1MB 이하", p1_d: "ウェブサイト掲載用", p2: "2MB 이하", p2_d: "ブログ/SNS用", p5: "5MB 이하", p5_d: "高画質保管용", down: "ダウンロード", wait: "お待ちください。" }
+        jp: { business: "ビジネスのお問い合わせ", sub: "画質劣化なしGemini透かし削除 · 画像分割 · 容量削減", guide_m: "画像を 여기에 드래그하거나<br>+ ボタンを押してください", guide_s: "透かし削除はGeminiのみ対応しています。<br>자동 시작에 체크를 하면 드래그만으로 자동 저장이 됩니다.", tab_split: "画像分割", tab_crop: "容量削減", visitors: "今日の訪問者", auto: "自動開始", wm: "透かし削除", free: "手動라인 그리기", ratio_free: "비율 자유", col: "가로 칸", row: "세로 칸", border: "테두리 자르기(%)", cut_ratio: "자르는 비율 선택", full: "원본 전체", free_trans: "자유 변형", custom: "비율 입력", target_cap: "원하는 파일 용량 (자동 맞춤)", p500: "500KB 이하", p500_d: "공공기관 제출용", p1: "1MB 이하", p1_d: "웹사이트 게시용", p2: "2MB 이하", p2_d: "블로그/SNS용", p5: "5MB 이하", p5_d: "고화질 보관용", down: "다운로드", wait: "잠시 기다려주세요." }
     };
 
     function changeLanguage(lang) { currentLang = lang; document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if(t[lang][key]) el.innerHTML = t[lang][key]; }); const flagCode = flags[lang] || 'kr'; document.getElementById('currentFlag').src = `https://flagcdn.com/24x18/${flagCode}.png`; }
@@ -560,19 +571,13 @@
                     ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; 
                     ctx.strokeRect(fx + mx, fy + my, fw - mx*2, fh - my*2); 
 
-                    // 번호 표시 (모바일 및 PC 공통 가시성)
-                    if (currentTab === 'split') {
-                        const fontSize = Math.min(fw, fh) * 0.3;
-                        ctx.font = `bold ${fontSize}px Pretendard`;
-                        ctx.textAlign = "center";
-                        ctx.textBaseline = "middle";
-                        ctx.strokeStyle = "black";
-                        ctx.lineWidth = fontSize / 10;
-                        ctx.strokeText(cellNum, fx + fw/2, fy + fh/2);
-                        ctx.fillStyle = "#00e676";
-                        ctx.fillText(cellNum, fx + fw/2, fy + fh/2);
-                        cellNum++;
-                    }
+                    const fontSize = Math.min(fw, fh) * 0.3;
+                    ctx.font = `bold ${fontSize}px Pretendard`;
+                    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.strokeStyle = "black"; ctx.lineWidth = fontSize / 10;
+                    ctx.strokeText(cellNum, fx + fw/2, fy + fh/2);
+                    ctx.fillStyle = "#00e676"; ctx.fillText(cellNum, fx + fw/2, fy + fh/2);
+                    cellNum++;
                 } 
             } 
         } else { 
@@ -585,7 +590,6 @@
     function handleMove(e) { if(!previewImg || !draggingType) return; if(e.type.startsWith('touch')) e.preventDefault(); const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height; if(draggingType.startsWith('bound-')) { const side = draggingType.split('-')[1]; gridBox[side] = Math.max(0, Math.min(1, side.includes('x') ? mx : my)); } else if(draggingType === 'col') { colPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (mx - gridBox.x1) / (gridBox.x2 - gridBox.x1))); } else if(draggingType === 'row') { rowPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (my - gridBox.y1) / (gridBox.y2 - gridBox.y1))); } else if(draggingType === 'move-grid') { let dx = mx - draggingIdx.ox, dy = my - draggingIdx.oy; gridBox.x1 = Math.max(0, Math.min(1 - (dragStartGrid.x2-dragStartGrid.x1), dragStartGrid.x1 + dx)); gridBox.x2 = gridBox.x1 + (dragStartGrid.x2-dragStartGrid.x1); gridBox.y1 = Math.max(0, Math.min(1 - (dragStartGrid.y2-dragStartGrid.y1), dragStartGrid.y1 + dy)); gridBox.y2 = gridBox.y1 + (dragStartGrid.y2-dragStartGrid.y1); } else if(draggingType === 'resize') { cropBox.w = Math.max(0.05, mx - cropBox.x); let r = (fixedRatio === 'custom') ? (parseFloat(document.getElementById('ratioW').value) || 1) / (parseFloat(document.getElementById('ratioH').value) || 1) : (typeof fixedRatio === 'number' ? fixedRatio : null); if(r) cropBox.h = (cropBox.w * (previewImg.width/previewImg.height)) / r; else cropBox.h = Math.max(0.05, my - cropBox.y); } else if(draggingType === 'move') { cropBox.x = Math.max(0, Math.min(1 - cropBox.w, mx - draggingIdx.ox)); cropBox.y = Math.max(0, Math.min(1 - cropBox.h, my - draggingIdx.oy)); } drawVisualizer(); }
     function handleEnd() { draggingIdx = -1; draggingType = null; }
     
-    // [최종 로직] 모바일은 수동 순차 다운로드, PC는 개별 고속 다운로드
     async function executeAction(targetFile = null) { 
         const fileToUse = targetFile || originalFile; if(!fileToUse) return; 
         const btn = document.getElementById('downloadBtn'); const originalText = t[currentLang].down; 
@@ -600,7 +604,6 @@
             const total = (fRows.length-1) * (fCols.length-1);
 
             if (isMobile) {
-                // 모바일 전용 수동 순차 다운로드
                 if (mobileSplitIdx >= total) { mobileSplitIdx = 0; updateButtonText(); return; }
                 const r = Math.floor(mobileSplitIdx / (fCols.length-1)), c = mobileSplitIdx % (fCols.length-1);
                 let sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw_p = (fCols[c+1]-fCols[c])*gw, sh_p = (fRows[r+1]-fRows[r])*gh; 
@@ -610,7 +613,6 @@
                 p.toBlob(blob => save(blob, `${fileNameBase}_${r+1}-${c+1}.${fileToUse.type.split('/')[1]}`), fileToUse.type, 1.0);
                 mobileSplitIdx++; updateButtonText();
             } else {
-                // PC 고속 다운로드 (기능 유지)
                 btn.innerText = t[currentLang].wait;
                 for(let r=0; r<fRows.length-1; r++) { 
                     for(let c=0; c<fCols.length-1; c++) { 
@@ -624,7 +626,6 @@
                 btn.innerText = originalText;
             }
         } else { 
-            // 압축 탭 (기능 유지)
             btn.innerText = t[currentLang].wait;
             const getBlob = async (q, s) => { 
                 const tw = Math.round(img.width * s), th = Math.round(img.height * s); 
