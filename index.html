@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Animo Pixel Master</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         /* [디자인 업그레이드: 모던 다크 테마 & 글래스모피즘] */
         :root { 
@@ -81,7 +82,7 @@
         /* 헤더 스타일 */
         .header-wrap { 
             display: flex; justify-content: center; align-items: center; 
-            margin-bottom: 3.5rem; /* 수정: 언어 선택창 공간 확보를 위해 여백 대폭 증가 */
+            margin-bottom: 3.5rem; /* 언어 선택창 공간 확보 */
             position: relative; width: 100%; 
         }
         h1 { 
@@ -95,7 +96,7 @@
         .lang-wrapper {
             position: absolute; 
             right: 0;
-            /* 수정: 타이틀과 서브텍스트 정중앙 여백에 위치하도록 Y축 이동 */
+            /* 타이틀과 서브텍스트 사이 정중앙 위치 조정 */
             bottom: -45px; 
             display: flex;
             align-items: center;
@@ -279,7 +280,7 @@
         }
 
         .ad-banner {
-            /* 수정: 모바일 배너 강제 크기 지정 및 투명 배경 (안뜨는 버그 수정) */
+            /* 배너 강제 크기 및 투명 배경 처리 */
             flex: 0 0 auto;
             width: 320px;
             height: 100px;
@@ -488,7 +489,7 @@
     function handleMove(e) { if(!previewImg || !draggingType) return; if(e.type.startsWith('touch')) e.preventDefault(); const rect = e.target.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const mx = (clientX - rect.left) / rect.width, my = (clientY - rect.top) / rect.height; if(draggingType.startsWith('bound-')) { const side = draggingType.split('-')[1]; gridBox[side] = Math.max(0, Math.min(1, side.includes('x') ? mx : my)); } else if(draggingType === 'col') { colPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (mx - gridBox.x1) / (gridBox.x2 - gridBox.x1))); } else if(draggingType === 'row') { rowPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (my - gridBox.y1) / (gridBox.y2 - gridBox.y1))); } else if(draggingType === 'move-grid') { let dx = mx - draggingIdx.ox, dy = my - draggingIdx.oy; gridBox.x1 = Math.max(0, Math.min(1 - (dragStartGrid.x2-dragStartGrid.x1), dragStartGrid.x1 + dx)); gridBox.x2 = gridBox.x1 + (dragStartGrid.x2-dragStartGrid.x1); gridBox.y1 = Math.max(0, Math.min(1 - (dragStartGrid.y2-dragStartGrid.y1), dragStartGrid.y1 + dy)); gridBox.y2 = gridBox.y1 + (dragStartGrid.y2-dragStartGrid.y1); } else if(draggingType === 'resize') { cropBox.w = Math.max(0.05, mx - cropBox.x); let r = (fixedRatio === 'custom') ? (parseFloat(document.getElementById('ratioW').value) || 1) / (parseFloat(document.getElementById('ratioH').value) || 1) : (typeof fixedRatio === 'number' ? fixedRatio : null); if(r) cropBox.h = (cropBox.w * (previewImg.width/previewImg.height)) / r; else cropBox.h = Math.max(0.05, my - cropBox.y); } else if(draggingType === 'move') { cropBox.x = Math.max(0, Math.min(1 - cropBox.w, mx - draggingIdx.ox)); cropBox.y = Math.max(0, Math.min(1 - cropBox.h, my - draggingIdx.oy)); } drawVisualizer(); }
     function handleEnd() { draggingIdx = -1; draggingType = null; }
     
-    // 수정: 모바일/PC 분기 처리로 다운로드 속도 최적화
+    // [핵심 변경] 모바일은 ZIP 다운로드, PC는 개별 고속 다운로드
     async function executeAction(targetFile = null) { 
         const fileToUse = targetFile || originalFile; 
         if(!fileToUse) return; 
@@ -497,7 +498,7 @@
         const originalText = t[currentLang].down; 
         btn.innerText = t[currentLang].wait; 
         
-        // 모바일 감지 (간단한 정규식 체크)
+        // 모바일 감지
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         
         const targetMB = currentTargetMB, 
@@ -505,7 +506,7 @@
               cropP = parseFloat(document.getElementById('cropInput').value) / 100, 
               img = await loadImage(fileToUse), 
               fileNameBase = fileToUse.name.replace(/\.[^/.]+$/, ""); 
-              
+
         const getBlob = async (qual, scal) => { 
             const tw = Math.round(img.width * scal), th = Math.round(img.height * scal); 
             const tmp = document.createElement('canvas'); 
@@ -527,9 +528,13 @@
             tCtx.imageSmoothingEnabled = false; 
             tCtx.drawImage(img, 0, 0); 
             if(doWM && maskData) applyEraser(tCtx, img.width, img.height); 
+            
             const x1 = gridBox.x1*img.width, x2 = gridBox.x2*img.width, y1 = gridBox.y1*img.height, y2 = gridBox.y2*img.height, gw = x2-x1, gh = y2-y1; 
             const fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1]; 
             
+            // 모바일일 경우 ZIP 객체 생성
+            let zip = isMobile ? new JSZip() : null;
+
             for(let r=0; r<fRows.length-1; r++) { 
                 for(let c=0; c<fCols.length-1; c++) { 
                     let sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw_p = (fCols[c+1]-fCols[c])*gw, sh_p = (fRows[r+1]-fRows[r])*gh; 
@@ -547,17 +552,36 @@
                     pCtx.drawImage(temp, sx+mx, sy+my, fw, fh, 0, 0, fw, fh); 
                     
                     let ext = currentFileType.includes('png') ? 'png' : (currentFileType.includes('webp') ? 'webp' : 'jpg'); 
-                    
-                    await new Promise(resolve => {
-                        p.toBlob(blob => {
-                            save(blob, `${fileNameBase}_${r+1}-${c+1}-split.${ext}`);
-                            // 수정: PC는 50ms (빠름), 모바일은 1500ms (안전함)
-                            setTimeout(resolve, isMobile ? 1500 : 50);
-                        }, currentFileType || 'image/jpeg', 1.0);
-                    });
+                    let fName = `${fileNameBase}_${r+1}-${c+1}-split.${ext}`;
+
+                    if (isMobile) {
+                        // 모바일: ZIP에 추가만 하고 저장 안 함
+                        await new Promise(resolve => {
+                            p.toBlob(blob => {
+                                zip.file(fName, blob);
+                                resolve();
+                            }, currentFileType || 'image/jpeg', 1.0);
+                        });
+                    } else {
+                        // PC: 바로 다운로드 (빠름)
+                        await new Promise(resolve => {
+                            p.toBlob(blob => {
+                                save(blob, fName);
+                                setTimeout(resolve, 50); // PC는 50ms로 매우 빠르게
+                            }, currentFileType || 'image/jpeg', 1.0);
+                        });
+                    }
                 } 
             } 
+
+            // 모바일 루프 종료 후 ZIP 생성 및 다운로드
+            if (isMobile) {
+                const zipBlob = await zip.generateAsync({type:"blob"});
+                save(zipBlob, `${fileNameBase}_split_images.zip`);
+            }
+
         } else { 
+            // 압축(Crop) 탭 로직 (단일 파일이라 수정 불필요)
             let s = 1.0, q = 0.95, finalBlob = null; 
             const limit = targetMB * 1024 * 1024, minLimit = limit * 0.95; 
             let lowQ = 0.05, highQ = 1.0, lowS = 0.5, highS = 1.0; 
@@ -575,7 +599,6 @@
 
     function applyEraser(ctx, w, h) { const imgData = ctx.getImageData(0,0,w,h), data = imgData.data; const sx = w - maskW - FIX_X, sy = h - maskH - FIX_Y; for(let y=0; y<maskH; y++) { for(let x=0; x<maskW; x++) { const tx = sx + x, ty = sy + y; if(tx<0 || ty<0 || tx>=w || ty>=h) continue; const tIdx = (ty * w + tx) * 4, mIdx = (y * maskW + x) * 4, alpha = Math.min(maskData[mIdx]/255, 0.98); if(alpha < 0.05) continue; const f = 1/(1-alpha); for(let k=0; k<3; k++) data[tIdx+k] = Math.max(0, Math.min(255, (data[tIdx+k]-255*alpha)*f)); } } ctx.putImageData(imgData, 0, 0); }
     
-    // 수정: 모바일 호환성 강화 (DOM 추가 후 클릭, 타임아웃 증가)
     function save(blob, name) { 
         const a = document.createElement('a'); 
         const url = URL.createObjectURL(blob); 
@@ -590,7 +613,6 @@
     }
     
     function loadImage(file) { return new Promise(r => { const i = new Image(); const url = URL.createObjectURL(file); i.onload = () => { URL.revokeObjectURL(url); r(i); }; i.src = url; }); }
-    function download(c, n, type) { c.toBlob(function(blob) { save(blob, n); }, type || 'image/jpeg', 1.0); }
 </script>
 </body>
 </html>
