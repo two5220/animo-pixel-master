@@ -148,7 +148,9 @@
         
         /* [수정] 모바일 화살표 150% 확대 및 텍스트 중앙 정렬 */
         .ratio-select { 
-            width: 100%; padding: 12px; padding-right: 50px;
+            width: 100%; 
+            /* [수정] 텍스트 중앙 정렬: 오른쪽 화살표 영역(50px)과 균형을 맞추기 위해 왼쪽 패딩 추가 */
+            padding: 12px 50px; 
             background: #151515; color: #fff; border: 1px solid #333; border-radius: 10px; 
             font-size: 1rem; font-weight: bold; cursor: pointer; outline: none; appearance: none;
             text-align: center; /* 텍스트 중앙 정렬 */
@@ -200,7 +202,7 @@
                 border: none !important;
             }
 
-            /* [수정] 체크박스 글씨 15% 축소 (1.25rem -> 1.06rem) */
+            /* [수정] 체크박스 글씨 확대 */
             .chk-label { 
                 display: flex; align-items: center; gap: 8px; 
                 font-size: 1.06rem !important; 
@@ -229,13 +231,18 @@
             
             .pc-tab-menu { display: contents; } 
             
+            /* [수정] 압축 용량 버튼 */
             .preset-btn { 
-                padding: 15px 0 !important; /* 모바일은 기존 크기 유지 */
+                padding: 15px 0 !important; 
+                font-size: 1.0rem !important; 
             }
 
-            /* [수정] 압축 용량 버튼 간격 70% 확대 (8px -> 14px) */
+            /* [수정] 압축 용량 버튼 그룹 컨테이너: 너비 60%대로 축소 및 중앙 정렬 */
             .preset-btns {
                 gap: 14px !important;
+                width: 65% !important; /* 100 -> 60 비율 적용 (기존 115% 대비 축소) */
+                margin: 0 auto !important; /* 중앙 정렬 */
+                margin-top: 5px !important;
             }
 
             /* [수정] 압축 용량 텍스트 숨김 */
