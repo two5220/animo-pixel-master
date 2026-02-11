@@ -200,13 +200,18 @@
                 border: none !important;
             }
 
-            /* [수정] 체크박스 글씨 확대 */
+            /* [수정] 체크박스 글씨 15% 축소 (1.25rem -> 1.06rem) */
             .chk-label { 
                 display: flex; align-items: center; gap: 8px; 
-                font-size: 1.25rem !important; /* 글씨 크기 30% 확대 (0.95rem -> 1.25rem) */
+                font-size: 1.06rem !important; 
                 cursor: pointer; color: #ccc; 
             }
             .chk-label input { width: 22px; height: 22px; }
+
+            /* [수정] 이미지 분할/압축 탭 텍스트 15% 확대 (0.95rem -> 1.1rem) */
+            .tab-btn {
+                font-size: 1.1rem !important;
+            }
 
             .tab-attach { 
                 width: 44px; height: 44px; border-radius: 10px; 
@@ -226,6 +231,16 @@
             
             .preset-btn { 
                 padding: 15px 0 !important; /* 모바일은 기존 크기 유지 */
+            }
+
+            /* [수정] 압축 용량 버튼 간격 70% 확대 (8px -> 14px) */
+            .preset-btns {
+                gap: 14px !important;
+            }
+
+            /* [수정] 압축 용량 텍스트 숨김 */
+            #cropPanel .input-group:first-child label {
+                display: none !important;
             }
         }
 
