@@ -137,19 +137,21 @@
         }
 
         @media (max-width: 1023px) {
-            /* [수정 시작] 모바일 컨트롤 박스 재설계 */
+            /* [수정 시작] 모바일 컨트롤 박스 (왼쪽) */
             .pc-controls-wrapper { 
+                float: left; /* 왼쪽 정렬 */
                 display: flex !important; 
-                flex-direction: column !important; /* 세로 배치 */
-                width: 50% !important; /* 너비 절반 */
+                flex-direction: column !important; 
+                width: 50% !important; /* 절반 너비 */
                 background: var(--surface); 
                 padding: 15px; 
                 border-radius: var(--radius-md); 
                 border: 1px solid var(--border); 
                 margin-bottom: 15px; 
-                align-items: center; /* 중앙 정렬 */
+                align-items: center;
                 gap: 12px;
-                margin-right: auto; /* 왼쪽 정렬 */
+                margin-right: 0 !important;
+                height: 100%; /* 높이 맞춤 시도 */
             }
 
             .btn-group-vertical { 
@@ -158,14 +160,14 @@
                 gap: 12px; 
                 align-items: center; 
                 justify-content: center;
-                border-right: none !important; /* 구분선 제거 */
+                border-right: none !important; 
                 padding-right: 0 !important;
                 width: 100%;
             }
 
             .chk-group-vertical { 
                 display: flex;
-                flex-direction: column; /* 세로 정렬 */
+                flex-direction: column; 
                 gap: 8px;
                 padding-left: 0 !important;
                 align-items: flex-start;
@@ -174,10 +176,23 @@
                 border: none;
                 width: auto;
             }
-            /* [수정 끝] */
 
-            #splitPanel { grid-template-columns: 1fr 1fr 1fr !important; gap: 10px; }
+            /* [수정 시작] 이미지 분할 설정 박스 (오른쪽) */
+            #splitPanel { 
+                float: right; /* 오른쪽 정렬 */
+                width: 50% !important; /* 절반 너비 */
+                display: flex !important; /* 내부 세로 배치 */
+                flex-direction: column !important;
+                gap: 8px !important;
+                background: var(--surface) !important;
+                padding: 15px !important;
+                border-radius: var(--radius-md) !important;
+                border: 1px solid var(--border) !important;
+                margin-bottom: 15px !important;
+                margin-top: 0 !important;
+            }
             #splitPanel .input-group:last-child { grid-column: 1 / -1 !important; margin-top: 5px; }
+            /* [수정 끝] */
 
             .tab-attach { 
                 width: 44px; height: 44px; border-radius: 12px; 
@@ -195,8 +210,12 @@
             
             .pc-tab-menu { display: contents; } 
             
-            .preset-btn { 
-                padding: 15px 0 !important; 
+            .preset-btn { padding: 15px 0 !important; }
+
+            /* 하단 버튼들이 말려 올라오지 않게 줄바꿈 처리 */
+            .action-row {
+                clear: both;
+                width: 100%;
             }
         }
 
