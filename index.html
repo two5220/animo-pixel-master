@@ -86,10 +86,12 @@
             #splitPanel .input-group:nth-child(3) { grid-column: auto !important; }
             
             .ratio-select-wrapper { width: 100%; grid-column: span 2; position: relative; }
+            
+            /* [수정] PC 버전 padding-right 축소 (50px -> 35px) 하여 텍스트 잘림 방지 */
             .ratio-select { 
                 width: 100%; 
                 padding: 9px 12px; 
-                padding-right: 50px; 
+                padding-right: 35px; /* 수정됨 */
                 background: #151515; color: #fff; border: 1px solid #333; border-radius: 10px; 
                 font-size: 0.9rem; font-weight: bold; cursor: pointer; outline: none; 
                 appearance: none; -webkit-appearance: none; -moz-appearance: none;
@@ -102,12 +104,9 @@
             }
             .ratio-select:hover { border-color: var(--primary); }
             
-            /* [수정] 비율 입력란: !important 제거하여 JS 토글 동작 허용 */
+            /* 비율 입력란 */
             .ratio-inputs-row { 
-                display: flex; /* !important 삭제됨 */
-                gap: 10px !important; 
-                width: 100%; 
-                grid-column: span 2; 
+                display: flex; gap: 10px !important; width: 100%; grid-column: span 2; 
                 margin-top: 3px !important; 
             }
             .ratio-inputs-row input { 
@@ -149,7 +148,6 @@
         .ratio-inputs-row { display: flex; gap: 10px; width: 100%; margin-top: 10px; }
         .ratio-select-wrapper { width: 100%; position: relative; }
         
-        /* [수정] 모바일 화살표 150% 확대 및 텍스트 중앙 정렬 */
         .ratio-select { 
             width: 100%; padding: 12px 50px;
             background: #151515; color: #fff; border: 1px solid #333; border-radius: 10px; 
@@ -166,7 +164,7 @@
             #splitPanel { grid-template-columns: 1fr 1fr 1fr !important; gap: 10px; }
             #splitPanel .input-group:last-child { grid-column: 1 / -1 !important; margin-top: 5px; }
 
-            /* [수정] 컨트롤 박스: 버튼은 왼쪽 세로 정렬, 체크박스는 오른쪽 세로 정렬 */
+            /* 컨트롤 박스 */
             .pc-controls-wrapper { 
                 display: flex !important; 
                 flex-direction: row !important; 
@@ -180,7 +178,7 @@
                 margin-bottom: 15px;
             } 
 
-            /* [수정] 버튼 그룹: 왼쪽 세로 정렬 */
+            /* 버튼 그룹 */
             .btn-group-vertical { 
                 display: flex !important; 
                 flex-direction: column !important; 
@@ -189,7 +187,7 @@
                 width: auto;
             }
 
-            /* [수정] 체크박스 그룹: 오른쪽 세로 정렬, 여백 확대 */
+            /* 체크박스 그룹 */
             .chk-group-vertical { 
                 display: flex !important; 
                 flex-direction: column !important; 
@@ -203,7 +201,6 @@
                 border: none !important;
             }
 
-            /* [수정] 체크박스 글씨 확대 */
             .chk-label { 
                 display: flex; align-items: center; gap: 8px; 
                 font-size: 1.25rem !important; 
@@ -211,7 +208,6 @@
             }
             .chk-label input { width: 22px; height: 22px; }
 
-            /* [수정] 이미지 분할/압축 탭 텍스트 15% 확대 (0.95rem -> 1.1rem) */
             .tab-btn {
                 font-size: 1.1rem !important;
             }
@@ -232,21 +228,19 @@
             
             .pc-tab-menu { display: contents; } 
             
-            /* [수정] 압축 용량 버튼 */
             .preset-btn { 
                 padding: 15px 0 !important; 
                 font-size: 1.0rem !important; 
             }
 
-            /* [수정] 압축 용량 버튼 그룹 컨테이너: 너비 65% 및 중앙 정렬 */
+            /* [수정] 압축 용량 버튼 너비 75%로 확대 (기존 65%에서 약 15% 증가) */
             .preset-btns {
                 gap: 14px !important;
-                width: 65% !important; 
+                width: 75% !important; /* 65% -> 75% */
                 margin: 0 auto !important; 
                 margin-top: 5px !important;
             }
 
-            /* [수정] 압축 용량 텍스트 숨김 */
             #cropPanel .input-group:first-child label {
                 display: none !important;
             }
