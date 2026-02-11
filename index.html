@@ -87,16 +87,18 @@
             
             .ratio-select-wrapper { width: 100%; grid-column: span 2; position: relative; }
             
-            /* [수정] PC 버전 padding-right 축소 (50px -> 35px) 하여 텍스트 잘림 방지 */
+            /* [수정] PC 버전 텍스트 잘림 방지: padding-right 45px로 확대 (화살표 공간 확보) */
             .ratio-select { 
                 width: 100%; 
                 padding: 9px 12px; 
-                padding-right: 35px; /* 수정됨 */
+                padding-right: 45px; /* 35px -> 45px 변경 */
                 background: #151515; color: #fff; border: 1px solid #333; border-radius: 10px; 
                 font-size: 0.9rem; font-weight: bold; cursor: pointer; outline: none; 
                 appearance: none; -webkit-appearance: none; -moz-appearance: none;
                 text-align: center; 
                 text-align-last: center; 
+                text-overflow: ellipsis; 
+                white-space: nowrap; 
                 background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
                 background-repeat: no-repeat;
                 background-position: right 5px center;
@@ -140,6 +142,11 @@
                 border: 2px solid var(--primary); 
                 color: #fff; background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%); 
                 box-shadow: 0 4px 12px rgba(0,230,118,0.2); 
+            }
+
+            /* [수정] PC 버전에서 압축 용량 텍스트 숨김 (유지) */
+            #cropPanel .input-group:first-child label {
+                display: none !important;
             }
         }
 
@@ -233,10 +240,10 @@
                 font-size: 1.0rem !important; 
             }
 
-            /* [수정] 압축 용량 버튼 너비 75%로 확대 (기존 65%에서 약 15% 증가) */
+            /* 압축 용량 버튼 너비 (기존 75% 유지) */
             .preset-btns {
                 gap: 14px !important;
-                width: 75% !important; /* 65% -> 75% */
+                width: 75% !important; 
                 margin: 0 auto !important; 
                 margin-top: 5px !important;
             }
