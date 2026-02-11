@@ -57,22 +57,25 @@
             .workspace-right { flex: 1; min-width: 280px; max-width: 340px; background: var(--surface); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border); }
             
             .pc-tab-menu { display: flex !important; gap: 5px; margin-bottom: 15px; }
-            .tab-btn { flex: 1; height: 60px !important; padding: 5px !important; line-height: 1.3 !important; white-space: pre-wrap !important; display: flex !important; justify-content: center; align-items: center; text-align: center; border-radius: 12px !important; }
+            .tab-btn { flex: 1; height: 60px !important; padding: 5px !important; line-height: 1.3 !important; white-space: pre-wrap !important; display: flex !important; justify-content: center; align-items: center; text-align: center; border-radius: 12px !important; font-size: 1.15rem !important; }
             .pc-br { display: inline !important; }
             
             .pc-controls-wrapper { display: flex !important; gap: 15px; margin-bottom: 15px; padding: 15px; background: #181818; border-radius: 12px; border: 1px solid #333; }
             .btn-group-vertical { display: flex !important; flex-direction: column !important; gap: 8px !important; width: 45px; flex-shrink: 0; }
             
-            /* [수정: + 버튼 내부 텍스트만 3배 확대 및 중앙 정렬] */
+            /* + 버튼 중앙 정렬 및 3배 확대 */
             .tab-attach { 
                 width: 100% !important; 
                 height: 40px !important; 
                 border-radius: 8px !important; 
-                font-size: 3rem !important; /* 3배 확대 */
-                line-height: 0.8 !important;
+                font-size: 1.8rem !important; 
+                line-height: 1 !important;
                 margin: 0 !important; 
-                display: flex !important; justify-content: center !important; align-items: center !important; 
-                padding-bottom: 6px !important; /* 시각적 중앙 보정 */
+                display: flex !important; 
+                justify-content: center !important; 
+                align-items: center !important; 
+                padding: 0 !important;
+                padding-bottom: 4px !important; 
             }
             .tab-delete { width: 100% !important; height: 40px !important; border-radius: 8px !important; font-size: 1rem !important; margin: 0 !important; }
             
@@ -82,26 +85,32 @@
             #splitPanel { grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; }
             #splitPanel .input-group:nth-child(3) { grid-column: auto !important; }
             
-            /* [수정: 비율 선택 박스 스타일 - 화살표 우측 끝, 텍스트 중앙] */
             .ratio-select-wrapper { width: 100%; grid-column: span 2; position: relative; }
             .ratio-select { 
-                width: 100%; padding: 12px; 
-                padding-right: 30px; /* 화살표 공간 확보 */
+                width: 100%; 
+                padding: 9px 12px; 
+                padding-right: 50px; 
                 background: #151515; color: #fff; border: 1px solid #333; border-radius: 10px; 
                 font-size: 0.9rem; font-weight: bold; cursor: pointer; outline: none; 
                 appearance: none; -webkit-appearance: none; -moz-appearance: none;
                 text-align: center; 
-                text-align-last: center; /* 텍스트 강제 중앙 정렬 */
+                text-align-last: center; 
                 background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
                 background-repeat: no-repeat;
-                background-position: right 10px center; /* 화살표 우측 끝 */
-                background-size: 20px;
+                background-position: right 5px center;
+                background-size: 30px;
             }
             .ratio-select:hover { border-color: var(--primary); }
             
-            /* [수정: 선택창과 입력창 사이 여백 50% 축소] */
-            .ratio-inputs-row { display: flex !important; gap: 10px !important; width: 100%; grid-column: span 2; margin-top: 5px !important; }
-            .ratio-inputs-row input { flex: 1; text-align: center; }
+            /* 비율 입력란 */
+            .ratio-inputs-row { 
+                display: flex !important; gap: 10px !important; width: 100%; grid-column: span 2; 
+                margin-top: 3px !important; 
+            }
+            .ratio-inputs-row input { 
+                flex: 1; text-align: center; 
+                padding: 9px 0 !important; 
+            }
             
             #splitPanel .input-group:last-child { grid-column: 1 / -1 !important; }
             #splitPanel .ratio-select-wrapper { grid-column: auto !important; width: 100%; }
@@ -112,38 +121,112 @@
             .info-container { max-width: 1400px !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 30px !important; }
             .features-grid { max-width: 1400px !important; grid-template-columns: repeat(3, 1fr) !important; }
             .gemini-section { max-width: 1400px !important; }
+
+            /* 압축 용량 버튼 */
+            .preset-btns { 
+                display: grid; grid-template-columns: repeat(2, 1fr); 
+                gap: 15px !important; 
+                margin-top: 5px; height: 100%; width: 100%; 
+            }
+            .preset-btn { 
+                background: #2d2d2d; border: 2px solid #333; color: #ccc; font-size: 0.9rem; 
+                padding: 9px 0 !important; 
+                border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; font-weight: 800; 
+            }
+            .preset-btn:hover { border-color: #777; background: #383838; color: #fff; }
+            .preset-btn.active { 
+                border: 2px solid var(--primary); 
+                color: #fff; background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%); 
+                box-shadow: 0 4px 12px rgba(0,230,118,0.2); 
+            }
         }
 
         /* [모바일용 스타일] */
         .pc-br { display: none; }
-        .btn-group-vertical { display: flex; gap: 10px; align-items: center; }
-        .chk-group-vertical { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
         .ratio-inputs-row { display: flex; gap: 10px; width: 100%; margin-top: 10px; }
         .ratio-select-wrapper { width: 100%; position: relative; }
+        
+        /* [수정] 모바일 화살표 150% 확대 및 텍스트 중앙 정렬 */
         .ratio-select { 
-            width: 100%; padding: 12px; padding-right: 30px;
+            width: 100%; padding: 12px; padding-right: 50px;
             background: #151515; color: #fff; border: 1px solid #333; border-radius: 10px; 
             font-size: 1rem; font-weight: bold; cursor: pointer; outline: none; appearance: none;
+            text-align: center; /* 텍스트 중앙 정렬 */
+            text-align-last: center; /* 모바일 드롭다운 텍스트 중앙 */
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
             background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 24px;
+            background-position: right 5px top 50%;
+            background-size: 30px; /* 30px로 확대 */
         }
 
         @media (max-width: 1023px) {
             #splitPanel { grid-template-columns: 1fr 1fr 1fr !important; gap: 10px; }
             #splitPanel .input-group:last-child { grid-column: 1 / -1 !important; margin-top: 5px; }
 
-            .tab-attach { 
-                width: 36px; height: 36px; border-radius: 10px; 
-                display: flex; justify-content: center; align-items: center; 
-                font-weight: 900; font-size: 1.5rem; 
-                padding-bottom: 2px;
+            /* [수정] 컨트롤 박스: 버튼은 왼쪽 세로 정렬, 체크박스는 오른쪽 세로 정렬 */
+            .pc-controls-wrapper { 
+                display: flex !important; 
+                flex-direction: row !important; /* 가로 배치 */
+                gap: 40px !important; /* 버튼과 체크박스 사이 여유로운 간격 */
+                justify-content: center; /* 중앙 정렬 */
+                align-items: center;
+                background: #181818; 
+                padding: 15px; 
+                border-radius: 12px; 
+                border: 1px solid #333; 
+                margin-bottom: 15px;
+            } 
+
+            /* [수정] 버튼 그룹: 왼쪽 세로 정렬 */
+            .btn-group-vertical { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                gap: 12px !important; 
+                align-items: center; 
+                width: auto;
             }
-            .tab-delete { width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-weight: 900; }
-            .pc-controls-wrapper, .pc-tab-menu { display: contents; } 
-            .btn-group-vertical { display: flex; flex-direction: row; gap: 10px; align-items: center; }
-            .chk-group-vertical { margin-bottom: 1.5rem; background: var(--surface); padding: 12px 20px; border-radius: var(--radius-md); border: 1px solid var(--border); }
+
+            /* [수정] 체크박스 그룹: 오른쪽 세로 정렬, 여백 확대 */
+            .chk-group-vertical { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                justify-content: center; 
+                gap: 20px !important; /* 체크박스 사이 공간 100% 확대 (기존 약 10px -> 20px) */
+                align-items: flex-start !important; 
+                width: auto; 
+                padding: 0 !important;
+                margin: 0 !important;
+                background: transparent !important;
+                border: none !important;
+            }
+
+            /* [수정] 체크박스 글씨 확대 */
+            .chk-label { 
+                display: flex; align-items: center; gap: 8px; 
+                font-size: 1.25rem !important; /* 글씨 크기 30% 확대 (0.95rem -> 1.25rem) */
+                cursor: pointer; color: #ccc; 
+            }
+            .chk-label input { width: 22px; height: 22px; }
+
+            .tab-attach { 
+                width: 44px; height: 44px; border-radius: 10px; 
+                display: flex; justify-content: center; align-items: center; 
+                font-weight: 900; font-size: 1.8rem; /* 버튼 폰트 유지 */
+                padding-bottom: 4px;
+                background: #2a2a2a;
+            }
+            .tab-delete { 
+                width: 44px; height: 44px; border-radius: 10px; 
+                display: flex; justify-content: center; align-items: center; 
+                font-weight: 900; 
+                background: #2a2a2a; 
+            }
+            
+            .pc-tab-menu { display: contents; } 
+            
+            .preset-btn { 
+                padding: 15px 0 !important; /* 모바일은 기존 크기 유지 */
+            }
         }
 
         /* [공통 스타일] */
@@ -174,6 +257,7 @@
         .tab-attach { background: var(--surface); color: var(--primary); border: 1px solid #333; cursor: pointer; display:flex; justify-content:center; align-items:center;}
         .tab-delete { background: var(--surface); color: var(--danger); border: 1px solid #333; font-size: 0.75rem; cursor: pointer; display:flex; justify-content:center; align-items:center;}
 
+        /* PC용 .chk-label은 아래 미디어쿼리 밖에서 정의 */
         .chk-label { display: flex; align-items: center; gap: 4px; font-size: 0.95rem; cursor: pointer; color: #ccc; }
         .chk-label input { accent-color: var(--primary); width: 18px; height: 18px; }
 
@@ -184,21 +268,10 @@
         /* 입력 숫자 중앙 정렬 */
         .input-num { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 0; border-radius: 10px; font-weight: bold; font-size: 1.1rem; width: 100%; text-align: center; }
 
-        /* [수정: 압축 용량 버튼 - 움찔거림 삭제(border 고정) & 간격/크기 조절] */
-        .preset-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 5px; height: 100%; width: 100%; }
-        .preset-btn { 
-            background: #2d2d2d; 
-            border: 2px solid #333; /* 기본 테두리 2px로 고정 */
-            color: #ccc; font-size: 0.9rem; 
-            padding: 10px 0; /* 세로 크기 10% 축소 */
-            border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; font-weight: 800; 
-        }
+        .preset-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 5px; height: 100%; }
+        .preset-btn { background: #2d2d2d; border: 1px solid #444; color: #ccc; font-size: 0.9rem; padding: 15px 0; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; font-weight: 800; }
         .preset-btn:hover { border-color: #777; background: #383838; color: #fff; }
-        .preset-btn.active { 
-            border: 2px solid var(--primary); /* 활성 시 색상만 변경 */
-            color: #fff; background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%); 
-            box-shadow: 0 4px 12px rgba(0,230,118,0.2); 
-        }
+        .preset-btn.active { border: 2px solid var(--primary); color: #fff; background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%); box-shadow: 0 4px 12px rgba(0,230,118,0.2); }
         .preset-btn span { display: block; }
 
         .btn-original { background: #333; border: 1px solid #444; color: #fff; font-size: 0.9rem; font-weight: 800; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; height: 100%; }
@@ -207,7 +280,7 @@
         .btn-original:disabled { opacity: 0.3; cursor: not-allowed; }
 
         .input-wrapper { position: relative; width: 100%; }
-        /* [수정: 테두리 입력란 중앙 정렬 (padding 제거)] */
+        /* 입력칸 패딩 제거하여 완전한 중앙 정렬 */
         .input-wrapper input { padding-right: 0 !important; width: 100%; text-align: center !important; }
         .input-unit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #888; font-weight: 800; font-size: 0.85rem; pointer-events: none; }
 
@@ -519,52 +592,11 @@
 * 사용자가 제공한 특정 주제나 3가지 개별 프롬프트를 바탕으로 절대적 16:9 가로 비율의 이미지 3장을 수직으로 나열한 단일 레이아웃 이미지를 기획하고 생성한다.
 * 각 영역(1구역, 2구역, 3구역)에 대해 일관성 있는 스타일이나 지시된 개별 내용을 충실히 반영한다.
 * 하나의 영역의 이미지는 다른 레이아웃 영역을 침범하지 않도록 엄격히 구분하며, 이미지 구분 경계선이나 바깥 테두리가 없는 매끄러운 연결을 지향합니다.
-* 생성된 이미지를 크롭할 것이기 때문에 생성가능한 최고해상도로 제공한다.
-
-행동 지침 및 규칙:
-1) 입력 처리:
- a) 사용자가 단일 주제만 제공할 경우, 그 주제를 바탕으로 서로 보완적인 3가지 세부 장면을 스스로 구상하여 프롬프트를 생성한다.
- b) 사용자가 3가지의 구체적인 프롬프트를 제공할 경우, 각 프롬프트를 1구역, 2구역, 3구역에 순서대로 배정하여 이미지를 구성한다.
-
-2) 이미지 구성 및 품질 제어:
- a) 결과물은 반드시 가로 16:9 비율의 이미지 3장이 위에서 아래로 이어지는 수직 3단 구성이어야 한다.
- b) 시각적 연속성을 유지하거나 사용자의 의도에 따라 명확히 구분된 3가지 시각 정보를 제공한다.
- c) 최종 결과물은 하나의 이미지 파일 내에 3개의 프레임이 포함된 형태여야 한다.
- d) 이미지 내에 '1구역', '2구역', '3구역'과 같은 텍스트 라벨을 표시하지 않는다.
-
-3) 출력 생성:
- a) 이미지를 생성하기 전, 사용자에게 생성할 3가지 장면에 대한 묘사를 간략히 설명한다.
- b) @DALL-E 또는 적절한 이미지 생성 도구를 사용하여 요청된 레이아웃을 생성한다.
-
-말투 및 톤:
-* 전문적이고 창의적인 이미지 제작 도우미의 톤을 유지한다.
-* 사용자의 요청 사항을 정확히 이해했음을 알리고, 생성될 이미지의 구성 요소를 간략히 설명한다.
-* 간결하고 명확한 한국어를 사용하여 소통한다.`,
+* 생성된 이미지를 크롭할 것이기 때문에 생성가능한 최고해상도로 제공한다.`,
         side: `목적 및 목표:
 * 사용자가 제공한 주제나 3개의 프롬프트를 바탕으로 세로 비율(9:16) 이미지 3장이 가로로 나란히 배치된 단일 이미지 레이아웃(16:9 가로형)을 구성하는 '세로 비율 3장 레이아웃' 전문가 역할을 수행합니다.
 * 단일 주제가 주어지면 그에 맞는 3가지 장면을 스스로 구상하여 일관성 있는 레이아웃을 만듭니다.
-* 3개의 개별 프롬프트가 주어지면 각 프롬프트의 내용을 충실히 반영하여 3분할 레이아웃에 표현합니다.
-* 하나의 영역의 이미지는 다른 레이아웃 영역을 침범하지 않도록 엄격히 구분하며, 이미지 구분 경계선이나 바깥 테두리가 없는 매끄러운 연결을 지향합니다.
-* 생성된 이미지를 크롭할 것이기 때문에 생성가능한 최고해상도로 제공한다.
-
-행동 지침 및 규칙:
-1) 이미지 구성 방식:
- a) 생성되는 모든 이미지의 최종 비율은 반드시 16:9 (가로형) 레이아웃이어야 합니다.
- b) 이미지 생성 프롬프트에 'A triptych of three distinct vertical panels', 'Three vertical frames side-by-side', '3-panel layout', 'borderless'와 같은 키워드를 포함하여 세 폭 제단화 형식을 유지합니다.
- c) 각 패널은 서로 다른 내용을 담고 있더라도 전체적으로 조화로운 분위기, 조명, 색감을 유지하여 통일감을 줍니다.
- d) 각 세로 패널 사이의 내용이 섞이지 않도록 하되, 물리적인 선(border)은 생성하지 않도록 지시합니다.
-
-2) 입력 처리:
- a) 사용자가 단일 키워드나 주제만 제공할 경우, 서사적 흐름이나 시각적 대비를 고려한 세 가지 시나리오를 제안하고 레이아웃을 구성합니다.
- b) 사용자가 세 개의 독립적인 프롬프트를 제공할 경우, 이를 왼쪽, 중앙, 오른쪽 섹션에 순서대로 매칭하여 시각화합니다.
-
-3) 상호작용 스타일:
- a) 사용자에게 시각화하고 싶은 테마나 구체적인 세 가지 장면 묘사를 요청하며 대화를 시작합니다. '안녕하세요! 어떤 테마로 3분할 레이아웃 이미지를 만들어 드릴까요?'와 같이 시작하세요.
- b) 결과물이 생성되면 각 패널의 의도와 구성을 설명하고, 레이아웃 비율이나 배치에 대한 피드백을 요청합니다.
-
-전반적인 톤:
-* 시각 예술 및 레이아웃 디자인 전문가로서 창의적이고 전문적인 어조를 유지합니다.
-* 사용자의 추상적인 아이디어를 구체적인 시각적 프롬프트로 변환하는 데 적극적인 도움을 줍니다.`
+* 3개의 개별 프롬프트가 주어지면 각 프롬프트의 내용을 충실히 반영하여 3분할 레이아웃에 표현합니다.`
     };
 
     function showPrompt(type) {
