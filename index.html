@@ -17,7 +17,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        /* [기존 디자인 및 로직 100% 유지] */
+        /* [공통 변수] */
         :root { 
             --primary: #00e676; 
             --primary-dim: rgba(0, 230, 118, 0.1);
@@ -31,7 +31,7 @@
             --radius-lg: 24px;
             --radius-md: 16px;
             --radius-sm: 8px;
-            --gem-accent: #4285f4; /* 제미나이 포인트 컬러 */
+            --gem-accent: #4285f4;
         }
         
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -41,297 +41,238 @@
             background-color: var(--bg-dark);
             background-image: radial-gradient(circle at 50% 0%, #1a3a2a 0%, #121212 60%);
             color: var(--text-main); 
-            margin: 0; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            overflow-x: hidden; 
-            padding-bottom: 50px;
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; padding-bottom: 50px;
         }
         
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        /* 숫자 입력 화살표 제거 */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
 
-        /* [신규 추가: Features 섹션 스타일] */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-bottom: 2rem;
-            width: 95%;
-            max-width: 620px;
+        /* [PC 전용 레이아웃: 1024px 이상] */
+        @media (min-width: 1024px) {
+            .container { max-width: 1400px !important; padding: 3rem !important; }
+            .dashboard-layout { display: flex; gap: 25px; align-items: flex-start; margin-top: 20px; text-align: left; }
+            .workspace-left { flex: 4; min-width: 0; }
+            #previewContainer { height: 650px !important; margin-bottom: 0 !important; }
+            .workspace-right { flex: 1; min-width: 280px; max-width: 340px; background: var(--surface); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border); }
+            
+            .pc-tab-menu { display: flex !important; gap: 5px; margin-bottom: 15px; }
+            .tab-btn { flex: 1; height: 60px !important; padding: 5px !important; line-height: 1.3 !important; white-space: pre-wrap !important; display: flex !important; justify-content: center; align-items: center; text-align: center; border-radius: 12px !important; }
+            .pc-br { display: inline !important; }
+            
+            .pc-controls-wrapper { display: flex !important; gap: 15px; margin-bottom: 15px; padding: 15px; background: #181818; border-radius: 12px; border: 1px solid #333; }
+            .btn-group-vertical { display: flex !important; flex-direction: column !important; gap: 8px !important; width: 45px; flex-shrink: 0; }
+            
+            .tab-attach { 
+                width: 100% !important; 
+                height: 40px !important; 
+                border-radius: 8px !important; 
+                font-size: 3rem !important; 
+                line-height: 0.8 !important;
+                margin: 0 !important; 
+                display: flex !important; justify-content: center !important; align-items: center !important; 
+                padding-bottom: 6px !important; 
+            }
+            .tab-delete { width: 100% !important; height: 40px !important; border-radius: 8px !important; font-size: 1rem !important; margin: 0 !important; }
+            
+            .chk-group-vertical { display: flex !important; flex-direction: column !important; justify-content: center; gap: 10px !important; align-items: flex-start !important; width: 100%; }
+            
+            #splitPanel, #cropPanel { grid-template-columns: 1fr 1fr !important; padding: 15px !important; background: rgba(0,0,0,0.2) !important; margin-bottom: 15px !important; }
+            #splitPanel { grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; }
+            #splitPanel .input-group:nth-child(3) { grid-column: auto !important; }
+            
+            .ratio-select-wrapper { width: 100%; grid-column: span 2; position: relative; }
+            .ratio-select { 
+                width: 100%; padding: 12px; 
+                padding-right: 30px; 
+                background: #151515; color: #fff; border: 1px solid #333; border-radius: 10px; 
+                font-size: 0.9rem; font-weight: bold; cursor: pointer; outline: none; 
+                appearance: none; -webkit-appearance: none; -moz-appearance: none;
+                text-align: center; 
+                text-align-last: center; 
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 10px center; 
+                background-size: 20px;
+            }
+            .ratio-select:hover { border-color: var(--primary); }
+            
+            .ratio-inputs-row { display: flex !important; gap: 10px !important; width: 100%; grid-column: span 2; margin-top: 5px !important; }
+            .ratio-inputs-row input { flex: 1; text-align: center; }
+            
+            #splitPanel .input-group:last-child { grid-column: 1 / -1 !important; }
+            #splitPanel .ratio-select-wrapper { grid-column: auto !important; width: 100%; }
+            #splitPanel .ratio-inputs-row { grid-column: auto !important; }
+
+            .main-btn { padding: 18px !important; font-size: 1.1rem !important; width: 100%; }
+            
+            .preset-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 5px; height: 100%; width: 100%; }
+            .preset-btn { 
+                background: #2d2d2d; 
+                border: 2px solid #333; 
+                color: #ccc; font-size: 0.9rem; 
+                padding: 10px 0; 
+                border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; font-weight: 800; 
+            }
+            .preset-btn:hover { border-color: #777; background: #383838; color: #fff; }
+            .preset-btn.active { 
+                border: 2px solid var(--primary); 
+                color: #fff; background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%); 
+                box-shadow: 0 4px 12px rgba(0,230,118,0.2); 
+            }
         }
 
-        .feature-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            text-align: left;
-            transition: transform 0.2s, border-color 0.2s;
+        /* [모바일용 스타일] */
+        .pc-br { display: none; }
+        .ratio-inputs-row { display: flex; gap: 10px; width: 100%; margin-top: 10px; }
+        .ratio-select-wrapper { width: 100%; position: relative; }
+        .ratio-select { 
+            width: 100%; padding: 12px; padding-right: 30px;
+            background: #151515; color: #fff; border: 1px solid #333; border-radius: 10px; 
+            font-size: 1rem; font-weight: bold; cursor: pointer; outline: none; appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 24px;
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
+        @media (max-width: 1023px) {
+            /* [수정 시작] 모바일 컨트롤 박스 재설계 */
+            .pc-controls-wrapper { 
+                display: flex !important; 
+                flex-direction: column !important; /* 세로 배치 */
+                width: 50% !important; /* 너비 절반 */
+                background: var(--surface); 
+                padding: 15px; 
+                border-radius: var(--radius-md); 
+                border: 1px solid var(--border); 
+                margin-bottom: 15px; 
+                align-items: center; /* 중앙 정렬 */
+                gap: 12px;
+                margin-right: auto; /* 왼쪽 정렬 */
+            }
+
+            .btn-group-vertical { 
+                display: flex; 
+                flex-direction: row; 
+                gap: 12px; 
+                align-items: center; 
+                justify-content: center;
+                border-right: none !important; /* 구분선 제거 */
+                padding-right: 0 !important;
+                width: 100%;
+            }
+
+            .chk-group-vertical { 
+                display: flex;
+                flex-direction: column; /* 세로 정렬 */
+                gap: 8px;
+                padding-left: 0 !important;
+                align-items: flex-start;
+                margin: 0;
+                background: transparent;
+                border: none;
+                width: auto;
+            }
+            /* [수정 끝] */
+
+            #splitPanel { grid-template-columns: 1fr 1fr 1fr !important; gap: 10px; }
+            #splitPanel .input-group:last-child { grid-column: 1 / -1 !important; margin-top: 5px; }
+
+            .tab-attach { 
+                width: 44px; height: 44px; border-radius: 12px; 
+                display: flex; justify-content: center; align-items: center; 
+                font-weight: 900; font-size: 1.6rem; 
+                padding-bottom: 2px;
+                background: #2a2a2a;
+            }
+            .tab-delete { 
+                width: 44px; height: 44px; border-radius: 12px; 
+                display: flex; justify-content: center; align-items: center; 
+                font-weight: 900; 
+                background: #2a2a2a;
+            }
+            
+            .pc-tab-menu { display: contents; } 
+            
+            .preset-btn { 
+                padding: 15px 0 !important; 
+            }
         }
 
-        .feat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .feat-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 0.5rem;
-        }
-
-        .feat-desc {
-            font-size: 0.85rem;
-            color: var(--text-sub);
-            line-height: 1.5;
-        }
-
-        .bg-fast { background: rgba(0, 230, 118, 0.15); color: #00e676; }
-        .bg-priv { background: rgba(66, 133, 244, 0.15); color: #4285f4; }
-        .bg-free { background: rgba(170, 0, 255, 0.15); color: #aa00ff; }
-
-        /* [기존 스타일 유지] */
-        #dropOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10000; 
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            border: 4px dashed var(--primary); 
-            display: none; justify-content: center; align-items: center; pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        #dropOverlay.active { display: flex; }
-        #dropOverlay::after { 
-            content: '이미지를 이곳에 놓으세요'; 
-            color: var(--primary); 
-            font-size: 1.8rem; 
-            font-weight: 800; 
-            text-shadow: 0 0 20px rgba(0,230,118,0.4);
-        }
-
-        .container { 
-            background: var(--panel-bg); 
-            padding: 3rem; 
-            border-radius: var(--radius-lg); 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5); 
-            text-align: center; 
-            width: 95%; 
-            max-width: 620px; 
-            border: 1px solid rgba(255,255,255,0.05); 
-            z-index: 10; 
-            position: relative; 
-            margin-top: 5vh; 
-            margin-bottom: 2rem;
-        }
+        /* [공통 스타일] */
+        .container { background: var(--panel-bg); padding: 2rem; border-radius: var(--radius-lg); box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center; width: 95%; max-width: 620px; border: 1px solid rgba(255,255,255,0.05); z-index: 10; position: relative; margin-top: 5vh; margin-bottom: 2rem; }
+        .header-wrap { display: flex; justify-content: center; align-items: center; margin-bottom: 1.2rem; position: relative; width: 100%; }
+        @media (min-width: 1024px) { .header-wrap { justify-content: center; } }
         
-        @media (max-width: 480px) {
-            .container { padding: 1.2rem; margin-top: 20px; }
-        }
+        h1 { color: var(--primary); margin: 0; font-weight: 900; font-size: 2.4rem; letter-spacing: -0.5px; background: linear-gradient(135deg, #00e676 0%, #69f0ae 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sub-text { color: var(--text-sub); font-size: 1.15rem; margin-bottom: 2rem; font-weight: 500; line-height: 1.5; text-align: center; }
         
-        .header-wrap { 
-            display: flex; justify-content: center; align-items: center; 
-            margin-bottom: 1.2rem; 
-            position: relative; width: 100%; 
-        }
-        h1 { 
-            color: var(--primary); margin: 0; font-weight: 900; font-size: 2rem; 
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #00e676 0%, #69f0ae 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .lang-wrapper {
-            position: absolute; 
-            right: 0;
-            bottom: -25px; 
-            display: flex;
-            align-items: center;
-            gap: 5px; 
-        }
+        .preview-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 8px; padding: 0 2px; }
+        .counter-box { font-size: 0.8rem; color: #777; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .counter-box b { color: var(--primary); font-size: 0.9rem; }
+        .lang-wrapper { display: flex; align-items: center; gap: 8px; }
+        .flag-icon { width: 25px; height: 18px; border-radius: 2px; }
+        .lang-select { background: #222; border: 1px solid #444; color: #888; font-size: 0.9rem; font-weight: bold; padding: 3px 8px; border-radius: 6px; cursor: pointer; }
 
-        .flag-icon { width: 20px; height: 15px; border-radius: 2px; box-shadow: 0 0 2px rgba(0,0,0,0.5); object-fit: cover; }
-        .lang-select { background: #222; border: 1px solid #444; color: #888; font-size: 0.7rem; font-weight: bold; padding: 2px 5px; border-radius: 6px; cursor: pointer; outline: none; }
-        .lang-select:hover { color: var(--accent); border-color: var(--accent); }
-
-        .sub-text { color: var(--text-sub); font-size: 0.95rem; margin-bottom: 2rem; font-weight: 500; line-height: 1.5; }
-        
-        #previewContainer { 
-            width: 100%; height: 340px; 
-            background: #000; 
-            border-radius: var(--radius-md); 
-            margin-bottom: 1.5rem; 
-            border: 1px solid #333; 
-            position: relative; 
-            display: flex; justify-content: center; align-items: center; 
-            overflow: hidden; 
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
+        #previewContainer { width: 100%; height: 340px; background: #000; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid #333; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
         #previewCanvas { max-width: 100%; max-height: 100%; object-fit: contain; cursor: crosshair; position: relative; z-index: 2; }
-        
-        #guideText {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            color: #555; z-index: 1; pointer-events: none; padding: 20px;
-            transition: opacity 0.3s;
-        }
+        #guideText { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #555; z-index: 1; pointer-events: none; padding: 20px; }
         #guideText .main-guide { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; color: #777; }
         #guideText .sub-guide { font-size: 0.85rem; line-height: 1.6; color: #555; }
 
-        .tab-menu { 
-            display: flex; align-items: center; gap: 4px; margin-bottom: 1.5rem; 
-            padding: 4px; background: #151515; border-radius: 12px;
-            border: 1px solid #2a2a2a;
-        }
-        .tab-btn { 
-            flex: 1; background: transparent; border: none; color: #666; 
-            font-size: 0.95rem; font-weight: 700; cursor: pointer; 
-            padding: 10px; border-radius: 8px; transition: all 0.2s ease;
-        }
+        .tab-menu { display: flex; align-items: center; gap: 4px; margin-bottom: 1.5rem; padding: 4px; background: #151515; border-radius: 12px; border: 1px solid #2a2a2a; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: #666; font-size: 0.95rem; font-weight: 700; cursor: pointer; padding: 10px; border-radius: 8px; transition: all 0.2s ease; }
         .tab-btn.active { color: #000; background: var(--primary); box-shadow: 0 2px 10px rgba(0, 230, 118, 0.2); }
         
-        .btn-group { display: flex; gap: 10px; align-items: center; }
-        
-        .tab-attach, .tab-delete { 
-            width: 36px; height: 36px; border-radius: 10px; 
-            display: flex; justify-content: center; align-items: center; 
-            cursor: pointer; font-weight: 900; font-size: 1.1rem; 
-            padding: 0; line-height: 1; text-align: center;
-        }
-        .tab-attach { background: var(--surface); color: var(--primary); border: 1px solid #333; }
-        .tab-delete { background: var(--surface); color: var(--danger); border: 1px solid #333; font-size: 0.75rem; font-weight: 800; }
+        .tab-attach { background: var(--surface); color: var(--primary); border: 1px solid #333; cursor: pointer; display:flex; justify-content:center; align-items:center;}
+        .tab-delete { background: var(--surface); color: var(--danger); border: 1px solid #333; font-size: 0.75rem; cursor: pointer; display:flex; justify-content:center; align-items:center;}
 
-        .counter-box { display: flex; flex-direction: column; justify-content: center; align-items: flex-end; margin-right: 5px; font-size: 0.65rem; color: #777; font-weight: 600; line-height: 1.2; }
-        .counter-box b { color: var(--primary); font-size: 0.9rem; }
-
-        .top-options { 
-            display: flex; justify-content: center; align-items: center; gap: 15px; 
-            margin-bottom: 1.5rem; background: var(--surface); padding: 12px 20px; 
-            border-radius: var(--radius-md); flex-wrap: wrap; border: 1px solid var(--border);
-        }
         .chk-label { display: flex; align-items: center; gap: 4px; font-size: 0.95rem; cursor: pointer; color: #ccc; }
         .chk-label input { accent-color: var(--primary); width: 18px; height: 18px; }
 
-        .config-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
-            background: var(--surface); padding: 20px; border-radius: var(--radius-md); 
-            margin-bottom: 1.5rem; border: 1px solid var(--border); text-align: left; 
-        }
-        .input-group { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-        label { font-size: 0.85rem; color: #888; font-weight: 700; white-space: nowrap; margin-left: 4px; }
-        .input-num { background: #151515; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 1.1rem; width: 100%; }
-
-        .ratio-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 5px; }
-        .ratio-btn { background: #333; border: 1px solid transparent; color: #aaa; font-size: 0.85rem; padding: 10px; border-radius: 8px; cursor: pointer; height: 100%; }
-        .ratio-btn.active { border-color: var(--primary); color: var(--primary); background: rgba(0, 230, 118, 0.05); }
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: var(--surface); padding: 20px; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--border); text-align: left; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; width: 100%; align-items: center; } 
+        label { font-size: 0.85rem; color: #888; font-weight: 700; margin-left: 0; text-align: center; width: 100%; white-space: nowrap; }
         
+        /* 입력 숫자 중앙 정렬 */
+        .input-num { background: #151515; border: 1px solid #333; color: #fff; padding: 12px 0; border-radius: 10px; font-weight: bold; font-size: 1.1rem; width: 100%; text-align: center; }
+
         .preset-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 5px; height: 100%; }
-        .preset-btn { 
-            background: #2d2d2d; border: 1px solid #444; color: #ccc; font-size: 1.1rem; padding: 15px 0; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; font-weight: 800; 
-        }
+        .preset-btn { background: #2d2d2d; border: 1px solid #444; color: #ccc; font-size: 0.9rem; padding: 15px 0; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; font-weight: 800; }
         .preset-btn:hover { border-color: #777; background: #383838; color: #fff; }
         .preset-btn.active { border: 2px solid var(--primary); color: #fff; background: linear-gradient(180deg, rgba(0,230,118,0.1) 0%, rgba(0,230,118,0.2) 100%); box-shadow: 0 4px 12px rgba(0,230,118,0.2); }
         .preset-btn span { display: block; }
 
-        .action-row { display: flex; gap: 12px; margin-bottom: 1.5rem; align-items: stretch; }
-        .main-btn { 
-            flex: 1; padding: 22px; border-radius: var(--radius-md); border: none; 
-            background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-size: 1.25rem; font-weight: 900; 
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(0,230,118,0.2);
-        }
+        .btn-original { background: #333; border: 1px solid #444; color: #fff; font-size: 0.9rem; font-weight: 800; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; height: 100%; }
+        .btn-original:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-original.active { background: var(--primary); color: #000; border-color: var(--primary); }
+        .btn-original:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .input-wrapper { position: relative; width: 100%; }
+        /* 입력칸 패딩 제거하여 완전한 중앙 정렬 */
+        .input-wrapper input { padding-right: 0 !important; width: 100%; text-align: center !important; }
+        .input-unit { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #888; font-weight: 800; font-size: 0.85rem; pointer-events: none; }
+
+        .action-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.5rem; align-items: stretch; }
+        .main-btn { flex: 1; padding: 22px; border-radius: var(--radius-md); border: none; background: linear-gradient(135deg, #00e676, #00c853); color: #000; font-size: 1.25rem; font-weight: 900; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(0,230,118,0.2); }
         .main-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(0,230,118,0.3); }
         
-        .donation-btn {
-            flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: #ffe812; color: #3c1e1e; padding: 0 20px; border-radius: var(--radius-md); 
-            cursor: pointer; border: none; min-width: 100px; box-shadow: 0 4px 15px rgba(255, 232, 18, 0.15); transition: transform 0.2s;
-        }
+        .donation-btn { flex: 0 0 auto; display: flex; justify-content: center; align-items: center; text-align: center; background: #ffe812; color: #3c1e1e; padding: 12px; border-radius: var(--radius-md); cursor: pointer; border: none; width: 100%; font-weight: 800; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; transition: transform 0.2s; }
         .donation-btn:hover { transform: translateY(-2px); }
-        .donation-icon { font-size: 1.4rem; margin-bottom: 2px; }
-        .donation-text { font-size: 0.8rem; font-weight: 800; line-height: 1.2; }
-
-        .business-box { margin-top: 1.5rem; background: #0f0f0f; border-radius: var(--radius-md); padding: 15px; border: 1px solid #222; text-align: center; color: #555; font-size: 0.85rem; font-weight: 600; }
-
-        .revenue-group { margin-top: 0; display: flex; justify-content: center; width: 100%; overflow: hidden; }
-        .ad-banner { flex: 0 0 auto; width: 100%; max-width: 100%; min-height: 100px; background: transparent; border-radius: 12px; overflow: hidden; border: 1px solid #333; display: flex; justify-content: center; align-items: center; }
 
         .qr-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 20000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
         .qr-modal.active { display: flex; animation: fadeIn 0.2s ease-out; }
         .qr-box { background: #fff; padding: 30px; border-radius: 24px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; }
         .qr-img { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid #eee; }
         .close-qr { margin-top: 20px; padding: 14px 0; width: 100%; background: #222; color: #fff; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
-        
-        .info-container {
-            width: 95%; max-width: 620px;
-            color: #888; text-align: left;
-            margin-bottom: 50px;
-        }
-        .info-section {
-            background: #181818;
-            border: 1px solid #2a2a2a;
-            border-radius: var(--radius-md);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        .info-title { color: var(--primary); font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
-        .info-text { font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; color: #aaa; }
-        .info-text strong { color: #ddd; }
-        .feature-list { list-style: none; padding: 0; margin: 0; }
-        .feature-list li { margin-bottom: 10px; position: relative; padding-left: 15px; font-size: 0.9rem; }
-        .feature-list li::before { content: '•'; color: var(--primary); position: absolute; left: 0; font-weight: bold; }
-        
-        .footer-links { text-align: center; margin-top: 20px; font-size: 0.8rem; }
-        .footer-links span { cursor: pointer; color: #555; text-decoration: underline; margin: 0 10px; }
-        .footer-links span:hover { color: var(--primary); }
-        
-        .policy-content { max-height: 60vh; overflow-y: auto; text-align: left; font-size: 0.85rem; color: #333; line-height: 1.6; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-top: 15px; }
-
-        .gemini-section {
-            background: linear-gradient(135deg, #1e1e1e 0%, #151515 100%);
-            border: 1px solid #333;
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            width: 95%;
-            max-width: 620px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-        .gemini-title { color: var(--gem-accent); font-size: 1.2rem; font-weight: 900; margin-bottom: 1rem; letter-spacing: -0.5px; }
-        .gemini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
-        .gem-btn {
-            background: #252525; border: 1px solid #444; color: #eee; padding: 15px 10px; border-radius: 12px;
-            cursor: pointer; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;
-            display: flex; flex-direction: column; gap: 5px; align-items: center;
-        }
-        .gem-btn:hover { border-color: var(--gem-accent); background: rgba(66, 133, 244, 0.05); transform: translateY(-2px); }
-        .gem-btn .icon { font-size: 1.4rem; }
-        .gem-tip-box {
-            background: #0f0f0f; border-left: 4px solid var(--gem-accent); padding: 12px; text-align: left;
-            border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #999; line-height: 1.6;
-        }
-        .gem-tip-box strong { color: var(--gem-accent); display: block; margin-bottom: 4px; font-size: 0.85rem; }
-
         .prompt-view { background: #111; color: #00e676; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 0.85rem; text-align: left; margin: 15px 0; white-space: pre-wrap; border: 1px solid #333; max-height: 300px; overflow-y: auto; }
         .copy-btn { width: 100%; padding: 12px; background: var(--gem-accent); color: white; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
-        .copy-btn:active { opacity: 0.8; }
+        .policy-content { max-height: 60vh; overflow-y: auto; text-align: left; font-size: 0.85rem; color: #333; line-height: 1.6; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-top: 15px; }
+
+        #dropOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); border: 4px dashed var(--primary); display: none; justify-content: center; align-items: center; pointer-events: none; transition: opacity 0.3s; }
+        #dropOverlay.active { display: flex; }
+        #dropOverlay::after { content: '이미지를 이곳에 놓으세요'; color: var(--primary); font-size: 1.8rem; font-weight: 800; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -343,189 +284,145 @@
     
     <div class="header-wrap">
         <h1>Animo Pixel Master</h1>
-        <div class="lang-wrapper">
-            <img id="currentFlag" src="https://flagcdn.com/24x18/kr.png" alt="KR" class="flag-icon">
-            <select class="lang-select" onchange="changeLanguage(this.value)">
-                <option value="ko">KO</option>
-                <option value="en">EN</option>
-                <option value="cn">CN</option>
-                <option value="jp">JP</option>
-            </select>
-        </div>
     </div>
 
     <p class="sub-text" data-i18n="sub">화질 저하 없는 제미나이 워터마크 제거<br>고성능 이미지 분할과 이미지 압축</p>
 
-    <div id="previewContainer">
-        <div id="guideText">
-            <div class="main-guide" data-i18n="guide_m">이미지를 이곳에 드래그 하거나<br>+ 버튼을 눌러주세요</div>
-            <div class="sub-guide">
-                <span data-i18n="guide_s">워터마크 삭제는 제미나이만 지원합니다.<br>자동 저장 체크시 드래그만으로 자동 저장됩니다.</span>
-                <div id="mobileGuide" style="color:#00e676; font-weight:bold; margin-top:8px;"></div>
+    <div class="dashboard-layout">
+        
+        <div class="workspace-left">
+            <div class="preview-top-bar">
+                <div class="counter-box">
+                    <span data-i18n="visitors">Today's Visitors</span>
+                    <b id="cntVisit">0</b>
+                </div>
+                <div class="lang-wrapper">
+                    <img id="currentFlag" src="https://flagcdn.com/24x18/kr.png" alt="KR" class="flag-icon">
+                    <select class="lang-select" onchange="changeLanguage(this.value)">
+                        <option value="ko">KO</option>
+                        <option value="en">EN</option>
+                        <option value="cn">CN</option>
+                        <option value="jp">JP</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="previewContainer">
+                <div id="guideText">
+                    <div class="main-guide" data-i18n="guide_m">이미지를 이곳에 드래그 하거나<br>+ 버튼을 눌러주세요</div>
+                    <div class="sub-guide">
+                        <span data-i18n="guide_s">워터마크 삭제는 제미나이만 지원합니다.<br>자동 저장 체크시 드래그만으로 자동 저장됩니다.</span>
+                        <div id="mobileGuide" style="color:#00e676; font-weight:bold; margin-top:8px;"></div>
+                    </div>
+                </div>
+                <canvas id="previewCanvas" style="display:none;" 
+                    onmousedown="handleStart(event)" onmousemove="handleMove(event)" onmouseup="handleEnd()" onmouseleave="handleEnd()"
+                    ontouchstart="handleStart(event)" ontouchmove="handleMove(event)" ontouchend="handleEnd()">
+                </canvas>
             </div>
         </div>
-        <canvas id="previewCanvas" style="display:none;" 
-            onmousedown="handleStart(event)" onmousemove="handleMove(event)" onmouseup="handleEnd()" onmouseleave="handleEnd()"
-            ontouchstart="handleStart(event)" ontouchmove="handleMove(event)" ontouchend="handleEnd()">
-        </canvas>
-    </div>
 
-    <div class="tab-menu">
-        <button class="tab-btn active" id="tabSplit" onclick="switchTab('split')" data-i18n="tab_split">이미지 분할</button>
-        <button class="tab-btn" id="tabCrop" onclick="switchTab('crop')" data-i18n="tab_crop">이미지 압축</button>
-        <div class="tab-spacer"></div>
-        <div class="btn-group">
-            <div class="counter-box">
-                <span data-i18n="visitors">Today's Visitors</span>
-                <b id="cntVisit">0</b>
+        <div class="workspace-right">
+            
+            <div class="pc-tab-menu tab-menu">
+                <button class="tab-btn active" id="pcTabSplit" onclick="switchTab('split')">
+                    <span data-i18n="tab_split">이미지 분할</span>
+                </button>
+                <button class="tab-btn" id="pcTabCrop" onclick="switchTab('crop')">
+                    <span data-i18n="tab_crop">이미지 압축</span>
+                </button>
+                <div class="tab-spacer" style="display:none;"></div>
             </div>
-            <div class="tab-delete" onclick="clearFiles()">Del</div>
-            <label for="fileInput" class="tab-attach">+</label>
-        </div>
-    </div>
 
-    <div class="top-options">
-        <label class="chk-label" id="wmOption"><input type="checkbox" id="wmCheck"><span data-i18n="wm">워터마크 제거</span></label>
-        <label class="chk-label"><input type="checkbox" id="autoCheck"><span data-i18n="auto">자동 저장</span></label>
-        <label class="chk-label" id="freeOption"><input type="checkbox" id="freeCheck" onchange="toggleFreeMode()"><span data-i18n="free">직접 조절</span></label>
-    </div>
+            <div class="tab-menu" style="display:none;"> 
+                <button class="tab-btn active" id="mobTabSplit" onclick="switchTab('split')">
+                    <span data-i18n="tab_split">이미지 분할</span>
+                </button>
+                <button class="tab-btn" id="mobTabCrop" onclick="switchTab('crop')">
+                    <span data-i18n="tab_crop">이미지 압축</span>
+                </button>
+            </div>
 
-    <div id="splitPanel" class="config-grid" style="grid-template-columns: repeat(3, 1fr);">
-        <div class="input-group"><label data-i18n="row">가로 칸</label><input type="number" id="rowInput" class="input-num" value="1" min="1" oninput="resetGridPositions()"></div>
-        <div class="input-group"><label data-i18n="col">세로 칸</label><input type="number" id="colInput" class="input-num" value="1" min="1" oninput="resetGridPositions()"></div>
-        <div class="input-group"><label data-i18n="border">테두리 자르기(%)</label><input type="number" id="cropInput" class="input-num" value="0.5" step="0.1" oninput="drawVisualizer()"></div>
-    </div>
+            <div class="pc-controls-wrapper">
+                <div class="btn-group-vertical">
+                    <label for="fileInput" class="tab-attach">+</label>
+                    <div class="tab-delete" onclick="clearFiles()">Del</div>
+                </div>
 
-    <div id="cropPanel" class="config-grid" style="display: none;">
-        <div class="input-group">
-            <label data-i18n="cut_ratio">자르는 비율 선택</label>
-            <div class="ratio-btns">
-                <button class="ratio-btn active" id="btnFull" onclick="setFixedRatio('full')" data-i18n="full">원본 전체</button>
-                <button class="ratio-btn" id="btnFree" onclick="setFixedRatio('free')" data-i18n="free_trans">자유 변형</button>
-                <button class="ratio-btn" id="btn16" onclick="setFixedRatio(16/9)">16:9</button>
-                <button class="ratio-btn" id="btn9" onclick="setFixedRatio(9/16)">9:16</button>
-                <button class="ratio-btn" id="btnCustom" onclick="setFixedRatio('custom')" data-i18n="custom">비율 입력</button>
-                <div style="display: flex; gap: 2px;">
-                    <input type="number" id="ratioW" class="input-num" value="1" min="1" disabled oninput="setRatioFromInput()" style="padding: 4px; font-size: 0.8rem; text-align: center;">
-                    <input type="number" id="ratioH" class="input-num" value="1" min="1" disabled oninput="setRatioFromInput()" style="padding: 4px; font-size: 0.8rem; text-align: center;">
+                <div class="chk-group-vertical top-options">
+                    <label class="chk-label"><input type="checkbox" id="wmCheck"><span data-i18n="wm">워터마크 제거</span></label>
+                    <label class="chk-label"><input type="checkbox" id="autoCheck"><span data-i18n="auto">자동 저장</span></label>
+                    <label class="chk-label" style="display:none;"><input type="checkbox" id="freeCheck" onchange="toggleFreeMode()"><span data-i18n="free">직접 조절</span></label>
+                </div>
+            </div>
+
+            <div id="splitPanel" class="config-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="input-group"><label data-i18n="row">가로 칸</label><input type="number" id="rowInput" class="input-num" value="1" min="1" oninput="resetGridPositions()"></div>
+                <div class="input-group"><label data-i18n="col">세로 칸</label><input type="number" id="colInput" class="input-num" value="1" min="1" oninput="resetGridPositions()"></div>
+                <div class="input-group">
+                    <label data-i18n="border">테두리(%)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="cropInput" class="input-num" value="0.5" step="0.1" oninput="drawVisualizer()">
+                        </div>
+                </div>
+                
+                <div class="input-group" style="grid-column: 1 / -1;">
+                    <label data-i18n="cut_ratio">이미지 크기</label>
+                    <div class="ratio-select-wrapper">
+                        <select id="ratioSelectSplit" class="ratio-select" onchange="handleRatioSelect(this, 'split')">
+                            <option value="full" data-i18n="full">원본 (자유 변형)</option>
+                            <option value="1.777">16:9</option>
+                            <option value="0.5625">9:16</option>
+                            <option value="1">1:1</option>
+                            <option value="custom" data-i18n="custom">직접 입력</option>
+                        </select>
+                    </div>
+                    <div id="customRatioInputSplit" class="ratio-inputs-row" style="display:none;">
+                        <input type="number" id="ratioWSplit" class="input-num" value="1" oninput="setRatioFromInput('split')">
+                        <input type="number" id="ratioHSplit" class="input-num" value="1" oninput="setRatioFromInput('split')">
+                    </div>
+                </div>
+            </div>
+
+            <div id="cropPanel" class="config-grid" style="display: none;">
+                 <div class="input-group" style="grid-column: 1 / -1;">
+                    <label data-i18n="target_cap">압축 용량</label>
+                    <div class="preset-btns">
+                        <button class="preset-btn" id="p500" onclick="setTargetMB(0.5, this)"><span data-i18n="p500">500KB 이하</span></button>
+                        <button class="preset-btn" id="p1" onclick="setTargetMB(1.0, this)"><span data-i18n="p1">1MB 이하</span></button>
+                        <button class="preset-btn" id="p2" onclick="setTargetMB(2.0, this)"><span data-i18n="p2">2MB 이하</span></button>
+                        <button class="preset-btn active" id="p5" onclick="setTargetMB(5.0, this)"><span data-i18n="p5">5MB 이하</span></button>
+                    </div>
+                </div>
+
+                 <div class="input-group" style="grid-column: 1 / -1;">
+                    <label data-i18n="cut_ratio">이미지 크기</label>
+                    <div class="ratio-select-wrapper">
+                        <select id="ratioSelect" class="ratio-select" onchange="handleRatioSelect(this, 'crop')">
+                            <option value="full" data-i18n="full">원본 (자유 변형)</option>
+                            <option value="1.777">16:9</option>
+                            <option value="0.5625">9:16</option>
+                            <option value="1">1:1</option>
+                            <option value="custom" data-i18n="custom">직접 입력</option>
+                        </select>
+                    </div>
+                    <div id="customRatioInput" class="ratio-inputs-row" style="display:none;">
+                        <input type="number" id="ratioW" class="input-num" value="1" oninput="setRatioFromInput('crop')">
+                        <input type="number" id="ratioH" class="input-num" value="1" oninput="setRatioFromInput('crop')">
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button class="main-btn" id="downloadBtn" onclick="executeAction()" data-i18n="down">다운로드</button>
+                <div class="donation-btn" onclick="handleDonation()">
+                    <span data-i18n="donate_text">도움이 되셨다면<br>아메리카노 한 잔 ☕</span>
                 </div>
             </div>
         </div>
-        <div class="input-group">
-            <label data-i18n="target_cap">원하는 파일 용량 (자동 맞춤)</label>
-            <div class="preset-btns">
-                <button class="preset-btn" id="p500" onclick="setTargetMB(0.5, this)"><span data-i18n="p500">500KB 이하</span></button>
-                <button class="preset-btn" id="p1" onclick="setTargetMB(1.0, this)"><span data-i18n=\"p1\">1MB 이하</span></button>
-                <button class="preset-btn" id="p2" onclick="setTargetMB(2.0, this)"><span data-i18n=\"p2\">2MB 이하</span></button>
-                <button class="preset-btn active" id=\"p5\" onclick=\"setTargetMB(5.0, this)\"><span data-i18n=\"p5\">5MB 이하</span></button>
-            </div>
-        </div>
-    </div>
-
-    <div class="action-row">
-        <div class="donation-btn" onclick="handleDonation()">
-            <span class="donation-icon">☕</span>
-            <span class="donation-text">개발자에게<br>커피 쏘기</span>
-        </div>
-        <button class="main-btn" id="downloadBtn" onclick="executeAction()" data-i18n="down">다운로드</button>
     </div>
 
     <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/*" style="display:none;" onchange="handleFiles(this.files)">
-
-    <div class="revenue-group">
-        <div class="ad-banner" id="bannerBox">
-            <script src="https://ads-partners.coupang.com/g.js"></script>
-            <script>
-                (function() {
-                    const isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                    if (isMob) {
-                        new PartnersCoupang.G({"id":963994,"trackingCode":"AF6557483","subId":null,"template":"carousel","width":"320","height":"100"});
-                    } else {
-                        new PartnersCoupang.G({"id":944285,"trackingCode":"AF6557483","subId":null,"template":"carousel","width":"580","height":"100"});
-                    }
-                })();
-            </script>
-        </div>
-    </div>
-
-    <div class="business-box"><span data-i18n="business">비지니스 문의</span> two5200@gmail.com</div>
-</div>
-
-<div class="features-grid">
-    <div class="feature-card">
-        <div class="feat-icon bg-fast">⚡</div>
-        <div class="feat-title">Lightning Fast</div>
-        <div class="feat-desc">브라우저 엔진 기반의 밀리초 단위 처리로 대기 시간 없는 즉각적인 결과물을 제공합니다.</div>
-    </div>
-    <div class="feature-card">
-        <div class="feat-icon bg-priv">🔒</div>
-        <div class="feat-title">Privacy First</div>
-        <div class="feat-desc">100% 클라이언트 사이드 프로세싱. 이미지는 절대 서버로 전송되지 않으며 기기 내에서만 처리됩니다.</div>
-    </div>
-    <div class="feature-card">
-        <div class="feat-icon bg-free">💎</div>
-        <div class="feat-title">Completely Free</div>
-        <div class="feat-desc">사용 제한이나 숨겨진 비용 없이 모든 강력한 기능들을 언제 어디서나 즉시 이용할 수 있습니다.</div>
-    </div>
-</div>
-
-<div class="gemini-section">
-    <div class="gemini-title">✨ Gemini Gems Prompt: 3분할 레이아웃 생성기</div>
-    <div class="gemini-grid">
-        <button class="gem-btn" onclick="showPrompt('stack')">
-            <span class="icon">🚥</span>
-            <span>가로 16:9 3장<br>(수직 나열형)</span>
-        </button>
-        <button class="gem-btn" onclick="showPrompt('side')">
-            <span class="icon">🖼️</span>
-            <span>세로 9:16 3장<br>(가로 나열형)</span>
-        </button>
-    </div>
-    <div class="gem-tip-box">
-        <strong>💡 멀티 프레임 생성을 위한 프롬프트 구조화 전략</strong>
-        최적의 결과물을 얻으려면, 3개의 프롬프트를 <u>줄바꿈(Line Break)으로 구분</u>하여 입력하거나, 단일 프롬프트 끝에 <u>'3-panel layout' 또는 'Triptych style'</u> 키워드를 병기하는 것이 효과적입니다.
-    </div>
-</div>
-
-<div class="info-container">
-    <div class="info-section">
-        <div class="info-title">🚀 Development Story: 왜 만들었나요?</div>
-        <div class="info-text">
-            제미나이(Gemini)의 이미지 생성 능력은 압도적이지만, 한 번에 한 장씩 뽑으려면 대기 시간이 길어지곤 합니다. 
-            저는 여기서 <strong>'하나의 레이아웃에 여러 프롬프트를 넣어 다수의 이미지를 한 번에 생성하는 팁'</strong>을 활용해 생산성을 극대화해 왔습니다.
-        </div>
-        <div class="info-text">
-            하지만 이렇게 생성된 결과물을 일일이 워터마크를 지우고 수동으로 자르는 작업은 매우 번거로웠습니다. 
-            그래서 <strong>워터마크 제거와 이미지 분할을 단 한 번의 드래그로 자동화</strong>할 수 있는 도구를 직접 개발하게 되었습니다. 
-            이미지 최적화가 필요한 모든 제미나이 사용자들이 저처럼 창작에만 집중할 수 있기를 바랍니다.
-        </div>
-    </div>
-    <div class="info-section">
-        <div class="info-title">✨ Animo Pixel Master의 특징</div>
-        <ul class="feature-list">
-            <li><strong>강력한 보안:</strong> 모든 이미지 처리는 사용자의 브라우저(Client-side)에서 이루어집니다. 개인정보 유출 걱정이 없습니다.</li>
-            <li><strong>스마트 용량 압축:</strong> 이진 탐색 알고리즘이 특정 용량(예: 5MB)에 맞춰 최적의 화질을 자동으로 찾아 압축합니다.</li>
-            <li><strong>인스타그램 최적화:</strong> 가로/세로 칸 수만 입력하면 피드에 딱 맞는 그리드 이미지로 즉시 분할 저장됩니다.</li>
-        </ul>
-    </div>
-
-    <div class="info-section">
-        <div class="info-title">💡 사용 가이드 (FAQ)</div>
-        <div class="info-text">
-            <strong>Q. 제미나이 워터마크는 어떻게 지우나요?</strong><br>
-            이미지를 불러온 후 상단의 [워터마크 제거]를 체크하고 다운로드하세요. AI가 생성한 특정 패턴을 인식해 픽셀 단위로 복원합니다.
-        </div>
-        <div class="info-text">
-            <strong>Q. 모바일에서도 가능한가요?</strong><br>
-            네, 반응형 디자인으로 스마트폰에서도 100% 활용 가능합니다. 보안 정책상 모바일에서는 한 장씩 순차적으로 다운로드됩니다.
-        </div>
-    </div>
-
-    <div class="footer-links">
-        <span onclick="openPolicy('privacy')">개인정보처리방침</span> | 
-        <span onclick="openPolicy('terms')">이용약관</span> | 
-        <span>Copyright © 2026 Animo. All rights reserved.</span>
-    </div>
 </div>
 
 <div id="promptModal" class="qr-modal">
@@ -558,11 +455,12 @@
     const FIX_X = 64, FIX_Y = 64, MASK_URL = "https://raw.githubusercontent.com/two5220/assets/refs/heads/main/mask.png";
     let maskImg = new Image(), maskData = null, maskW = 0, maskH = 0, previewImg = null, originalFile = null;
     let currentTab = 'split', colPos = [], rowPos = [], gridBox = { x1: 0, y1: 0, x2: 1, y2: 1 }, cropBox = { x: 0, y: 0, w: 1, h: 1 };
-    let fixedRatio = 'full', splitRatioSetting = 'free', draggingIdx = -1, draggingType = null, currentTargetMB = 5.0, dragStartGrid = null;
+    let fixedRatio = 'full', currentTargetMB = 5.0, currentLang = 'ko';
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     let mobileSplitIdx = 0; 
     const MAX_MOBILE_SPLIT = 50; 
 
+    /* [프롬프트 데이터 복구] */
     const prompts = {
         stack: `역할 및 목표:
 * 사용자가 제공한 특정 주제나 3가지 개별 프롬프트를 바탕으로 절대적 16:9 가로 비율의 이미지 3장을 수직으로 나열한 단일 레이아웃 이미지를 기획하고 생성한다.
@@ -589,7 +487,6 @@
 * 전문적이고 창의적인 이미지 제작 도우미의 톤을 유지한다.
 * 사용자의 요청 사항을 정확히 이해했음을 알리고, 생성될 이미지의 구성 요소를 간략히 설명한다.
 * 간결하고 명확한 한국어를 사용하여 소통한다.`,
-
         side: `목적 및 목표:
 * 사용자가 제공한 주제나 3개의 프롬프트를 바탕으로 세로 비율(9:16) 이미지 3장이 가로로 나란히 배치된 단일 이미지 레이아웃(16:9 가로형)을 구성하는 '세로 비율 3장 레이아웃' 전문가 역할을 수행합니다.
 * 단일 주제가 주어지면 그에 맞는 3가지 장면을 스스로 구상하여 일관성 있는 레이아웃을 만듭니다.
@@ -639,24 +536,60 @@
     const KAKAO_LINK = "https://qr.kakaopay.com/Ej8NXO17Z";
     function handleDonation() { if (isMobile) { window.open(KAKAO_LINK, '_blank'); } else { document.getElementById('qrModal').classList.add('active'); } }
     function closeQr() { document.getElementById('qrModal').classList.remove('active'); }
-    let currentLang = 'ko';
-    const flags = { ko: 'kr', en: 'us', cn: 'cn', jp: 'jp' };
+    
+    const flags = { ko: 'kr', en: 'us', cn: 'cn', jp: 'jp', in: 'in' };
     const t = {
         ko: { 
-            business: "비지니스 문의", sub: "화질 저하 없는 제미나이 워터마크 제거<br>고성능 이미지 분할과 이미지 압축", 
-            guide_m: "이미지를 이곳에 드래그 하거나<br>+ 버튼을 눌러주세요", 
-            guide_s: "워터마크 삭제는 제미나이만 지원합니다.<br>자동 저장 체크시 드래그만으로 자동 저장됩니다.", 
+            tab_split: "이미지<br class='pc-br'>분할", tab_crop: "이미지<br class='pc-br'>압축", visitors: "Today's Visitors", wm: "워터마크 제거", auto: "자동 저장", free: "직접 조절", 
+            row: "가로 칸", col: "세로 칸", border: "테두리(%)", cut_ratio: "이미지 크기", target_cap: "압축 용량", 
+            p500: "500KB 이하", p1: "1MB 이하", p2: "2MB 이하", p5: "5MB 이하", full: "원본 (자유 변형)", custom: "직접 입력",
+            down: "다운로드", sub: "화질 저하 없는 제미나이 워터마크 제거<br>고성능 이미지 분할과 이미지 압축", 
+            guide_m: "이미지를 이곳에 드래그 하거나<br>+ 버튼을 눌러주세요", guide_s: "워터마크 삭제는 제미나이만 지원합니다.<br>자동 저장 체크시 드래그만으로 자동 저장됩니다.",
             guide_mobile: "모바일은 보안 정책상 번호순으로<br>한 장씩 다운로드해야 합니다.",
-            tab_split: "이미지 분할", tab_crop: "이미지 압축", visitors: "Today's Visitors", auto: "자동 저장", wm: "워터마크 제거", free: "직접 조절", 
-            col: "세로 칸", row: "가로 칸", border: "테두리 자르기(%)", 
-            cut_ratio: "자르는 비율 선택", full: "원본 전체", free_trans: "자유 변형", custom: "비율 입력", 
-            target_cap: "원하는 파일 용량 (자동 맞춤)", 
-            p500: "500KB 이하", p1: "1MB 이하", p2: "2MB 이하", p5: "5MB 이하", 
-            down: "다운로드", wait: "잠시 기다려주세요.",
-            down_pair: "{n}번 다운로드", down_done_pair: "완료! {n}번 다운로드", all_done: "전체 완료 (다시 시작)"
+            wait: "잠시 기다려주세요.", down_pair: "{n}번 다운로드", down_done_pair: "완료! {n}번 다운로드", all_done: "전체 완료 (다시 시작)",
+            donate_text: "도움이 되셨다면<br>아메리카노 한 잔 ☕"
+        },
+        en: { 
+            tab_split: "Image<br class='pc-br'>Split", tab_crop: "Image<br class='pc-br'>Compress", visitors: "Today's Visitors", wm: "Remove Watermark", auto: "Auto Save", free: "Manual Adjust", 
+            row: "Horizontal Rows", col: "Vertical Cols", border: "Border(%)", cut_ratio: "Image Ratio", target_cap: "Compression", 
+            p500: "Under 500KB", p1: "Under 1MB", p2: "Under 2MB", p5: "Under 5MB", full: "Original (Free)", custom: "Custom Input",
+            down: "Download", sub: "Lossless Gemini Watermark Removal<br>High Performance Split & Compress", 
+            guide_m: "Drag images here or<br>click the + button", guide_s: "Watermark removal supports Gemini only.<br>Auto-save on drag when 'Auto Save' is checked.",
+            guide_mobile: "Due to security policy on mobile,<br>please download sequentially.",
+            wait: "Please wait.", down_pair: "{n} Download", down_done_pair: "Done! {n} Download", all_done: "All Done (Restart)",
+            donate_text: "If this helped,<br>Buy me an Americano ☕"
+        },
+        jp: {
+            tab_split: "画像<br class='pc-br'>分割", tab_crop: "画像<br class='pc-br'>圧縮", visitors: "今日の訪問者", wm: "透かし削除", auto: "自動保存", free: "手動設定", 
+            row: "横の分割数", col: "縦の分割数", border: "余白(%)", cut_ratio: "画像比率", target_cap: "圧縮容量", 
+            p500: "500KB以下", p1: "1MB以下", p2: "2MB以下", p5: "5MB以下", full: "元画像 (自由)", custom: "手動入力",
+            down: "ダウンロード", sub: "画質劣化なし！Gemini透かし削除<br>高性能な画像分割＆圧縮ツール", 
+            guide_m: "画像をドラッグするか<br>＋ボタンを押してください", guide_s: "透かし削除はGemini生成画像のみ対応しています。",
+            guide_mobile: "モバイルセキュリティポリシーのため、<br>順番にダウンロードしてください。",
+            wait: "お待ちください。", down_pair: "{n} ダウンロード", down_done_pair: "完了！ {n} ダウンロード", all_done: "完了 (再開)",
+            donate_text: "お役に立てれば<br>コーヒー一杯を ☕"
+        },
+        in: {
+            tab_split: "इमेज<br class='pc-br'>स्प्लिट", tab_crop: "इमेज<br class='pc-br'>कंप्रेस", visitors: "आज के आगंतुक", wm: "वॉटरमार्क", auto: "ऑटो सेव", free: "मैनुअल सेटिंग", 
+            row: "क्षैतिज पंक्तियाँ", col: "लंबवत कॉलम", border: "बॉर्डर(%)", cut_ratio: "इमेज अनुपात", target_cap: "संपीड़न", 
+            p500: "500KB से कम", p1: "1MB से कम", p2: "2MB से कम", p5: "5MB से कम", full: "मूल (निःशुल्क)", custom: "मैनुअल",
+            down: "डाउनलोड", sub: "बिना क्वालिटी खोए जेमिनी वॉटरमार्क हटाएं<br>हाई-स्पीड इमेज विभाजन और संपीड़न", 
+            guide_m: "इमेज यहाँ खींचें या<br>+ बटन दबाएं", guide_s: "वॉटरमार्क हटाना केवल जेमिनी के लिए समर्थित है।",
+            guide_mobile: "मोबाइल सुरक्षा नीति के कारण,<br>कृपया क्रमिक रूप से डाउनलोड करें।",
+            wait: "कृपया प्रतीक्षा करें।", down_pair: "{n} डाउनलोड", down_done_pair: "हो गया! {n} डाउनलोड", all_done: "सभी हो गया (पुनः आरंभ करें)",
+            donate_text: "यदि मदद मिली,<br>कॉफी पिलाएं ☕"
         }
     };
-    function changeLanguage(lang) { currentLang = lang; document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if(t[lang][key]) el.innerHTML = t[lang][key]; }); updateMobileGuide(); updateButtonText(); const flagCode = flags[lang] || 'kr'; document.getElementById('currentFlag').src = `https://flagcdn.com/24x18/${flagCode}.png`; }
+    function changeLanguage(lang) { 
+        currentLang = lang; 
+        document.querySelectorAll('[data-i18n]').forEach(el => { 
+            const key = el.getAttribute('data-i18n'); 
+            if(t[lang][key]) el.innerHTML = t[lang][key]; 
+        }); 
+        updateMobileGuide(); updateButtonText();
+        const flagCode = flags[lang] || 'kr'; 
+        document.getElementById('currentFlag').src = `https://flagcdn.com/24x18/${flagCode}.png`; 
+    }
     window.addEventListener('DOMContentLoaded', updateMobileGuide);
     const todayStr = new Date().toISOString().slice(0, 10);
     const savedDate = localStorage.getItem('animo_date');
@@ -670,22 +603,100 @@
     mainCont.addEventListener('dragleave', (e) => { if (e.relatedTarget === null || !mainCont.contains(e.relatedTarget)) document.getElementById('dropOverlay').classList.remove('active'); });
     window.addEventListener('drop', (e) => { e.preventDefault(); document.getElementById('dropOverlay').classList.remove('active'); if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files); });
     maskImg.crossOrigin = "Anonymous";
-    maskImg.onload = () => { const c = document.createElement('canvas'); c.width = maskImg.width; c.height = maskImg.height; const ctx = c.getContext('2d'); ctx.drawImage(maskImg, 0, 0); const d = ctx.getImageData(0,0,c.width,c.height).data; let minX = c.width, minY = c.height, maxX = 0, maxY = 0, found = false; for(let y=0; y<c.height; y++){ for(let x=0; x<c.width; x++){ const i = (y*c.width + x)*4; if(d[i]>15){ if(x<minX) minX = x; if(x>maxX) maxX = x; if(y<minY) minY = y; if(y>maxY) maxY = y; found = true; } } } if(found){ maskW = maxX-minX+1; maskH = maxY-minY+1; maskData = ctx.getImageData(minX, minY, maskW, maskH).data; } };
+    maskImg.onload = () => { const c = document.createElement('canvas'); c.width = maskImg.width; c.height = maskImg.height; const ctx = c.getContext('2d'); ctx.drawImage(maskImg, 0, 0); const d = ctx.getImageData(0,0,c.width,c.height).data; let minX = c.width, minY = c.height, maxX = 0, maxY = 0, found = false; for(let y=0; y<c.height; y++){ for(let x=0; x<c.width; x++){ if(d[(y*c.width+x)*4]>15){ minX=Math.min(minX,x); maxX=Math.max(maxX,x); minY=Math.min(minY,y); maxY=Math.max(maxY,y); } } } maskW=maxX-minX+1; maskH=maxY-minY+1; maskData=ctx.getImageData(minX, minY, maskW, maskH).data; };
     maskImg.src = MASK_URL;
     function setTargetMB(mb, btn) { currentTargetMB = mb; document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
-    function toggleFreeMode() { const isFree = document.getElementById('freeCheck').checked; if(!isFree) gridBox = { x1: 0, y1: 0, x2: 1, y2: 1 }; resetGridPositions(); drawVisualizer(); }
+    
+    function toggleFreeMode() { 
+        const isFree = document.getElementById('freeCheck').checked; 
+        const ratioInput = document.getElementById('ratioInputGroup');
+        if(ratioInput) ratioInput.style.display = isFree ? 'flex' : 'none';
+        if(currentTab === 'split') { if(!isFree) gridBox = { x1: 0, y1: 0, x2: 1, y2: 1 }; }
+        resetGridPositions(); drawVisualizer(); 
+    }
+
     function clearFiles() { previewImg = null; originalFile = null; mobileSplitIdx = 0; updateButtonText(); document.getElementById('previewCanvas').style.display = 'none'; document.getElementById('guideText').style.display = 'flex'; document.getElementById('fileInput').value = ''; }
-    function switchTab(tab) { currentTab = tab; document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tab === 'split' ? 'tabSplit' : 'tabCrop').classList.add('active'); document.getElementById('splitPanel').style.display = tab === 'split' ? 'grid' : 'none'; document.getElementById('cropPanel').style.display = tab === 'crop' ? 'grid' : 'none'; document.getElementById('freeOption').style.display = tab === 'split' ? 'flex' : 'none'; document.getElementById('wmOption').style.display = tab === 'split' ? 'flex' : 'none'; updateButtonText(); drawVisualizer(); }
+    
+    // [수정: 스위치탭 함수 - ID 충돌 방지]
+    function switchTab(tab) { 
+        currentTab = tab; 
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+        
+        // PC/Mobile 버튼 모두 Active 처리
+        if(tab === 'split') {
+            if(document.getElementById('pcTabSplit')) document.getElementById('pcTabSplit').classList.add('active');
+            if(document.getElementById('mobTabSplit')) document.getElementById('mobTabSplit').classList.add('active');
+        } else {
+            if(document.getElementById('pcTabCrop')) document.getElementById('pcTabCrop').classList.add('active');
+            if(document.getElementById('mobTabCrop')) document.getElementById('mobTabCrop').classList.add('active');
+        }
+
+        document.getElementById('splitPanel').style.display = tab === 'split' ? 'grid' : 'none'; 
+        document.getElementById('cropPanel').style.display = tab === 'crop' ? 'grid' : 'none'; 
+        
+        /* [탭 변경 시 원본 자동 선택] */
+        if(tab === 'crop') {
+            document.getElementById('ratioSelect').value = 'full';
+            handleRatioSelect(document.getElementById('ratioSelect'), 'crop');
+        } else {
+            // 분할 탭에서도 초기화
+            document.getElementById('ratioSelectSplit').value = 'full';
+            handleRatioSelect(document.getElementById('ratioSelectSplit'), 'split');
+        }
+
+        updateButtonText(); drawVisualizer(); 
+    }
+
     function updateButtonText() { const btn = document.getElementById('downloadBtn'); if (isMobile && currentTab === 'split' && previewImg) { const total = parseInt(document.getElementById('colInput').value) * parseInt(document.getElementById('rowInput').value); if (mobileSplitIdx >= total) btn.innerText = t[currentLang].all_done; else { const txt = (mobileSplitIdx === 0) ? t[currentLang].down_pair : t[currentLang].down_done_pair; btn.innerText = txt.replace('{n}', mobileSplitIdx + 1); } } else btn.innerText = t[currentLang].down; }
-    function setFixedRatio(mode) { fixedRatio = mode; document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active')); const rw = document.getElementById('ratioW'), rh = document.getElementById('ratioH'); rw.disabled = (mode !== 'custom'); rh.disabled = (mode !== 'custom'); if(mode === 'free') document.getElementById('btnFree').classList.add('active'); else if(mode === 'full') { document.getElementById('btnFull').classList.add('active'); cropBox = { x: 0, y: 0, w: 1, h: 1 }; } else if(mode === 'custom') document.getElementById('btnCustom').classList.add('active'); else if(typeof mode === 'number') { if(mode === 1) document.getElementById('btnCustom').classList.add('active'); else if(mode > 1) document.getElementById('btn16').classList.add('active'); else document.getElementById('btn9').classList.add('active'); } if(mode !== 'full') adjustCropToRatio(); else drawVisualizer(); }
-    function setRatioFromInput() { const w = parseFloat(document.getElementById('ratioW').value), h = parseFloat(document.getElementById('ratioH').value); if(w > 0 && h > 0) { fixedRatio = w / h; adjustCropToRatio(); } }
-    function adjustCropToRatio() { if(!previewImg || fixedRatio === 'free' || fixedRatio === 'full') { drawVisualizer(); return; } let r = 1; if(fixedRatio === 'custom') { const w = parseFloat(document.getElementById('ratioW').value) || 1; const h = parseFloat(document.getElementById('ratioH').value) || 1; r = w / h; } else r = (typeof fixedRatio === 'number') ? fixedRatio : 1; const imgRatio = previewImg.width / previewImg.height; if(r > imgRatio) { cropBox.w = 0.9; cropBox.h = (0.9 * imgRatio) / r; } else { cropBox.h = 0.9; cropBox.w = (0.9 * r) / imgRatio; } cropBox.x = (1 - cropBox.w) / 2; cropBox.y = (1 - cropBox.h) / 2; drawVisualizer(); }
+    
+    /* [비율 셀렉트 핸들러 (분할/압축 공통)] */
+    function handleRatioSelect(elem, type) {
+        const val = elem.value;
+        const customInputId = type === 'split' ? 'customRatioInputSplit' : 'customRatioInput';
+        const customInput = document.getElementById(customInputId);
+        
+        if (val === 'custom') {
+            customInput.style.display = 'flex';
+            setRatioFromInput(type);
+        } else if (val === 'full') {
+            customInput.style.display = 'none';
+            setFixedRatio('full');
+        } else {
+            customInput.style.display = 'none';
+            setFixedRatio(parseFloat(val));
+        }
+    }
+
+    function setFixedRatio(mode) { 
+        fixedRatio = mode; 
+        if(mode === 'full') { cropBox = { x: 0, y: 0, w: 1, h: 1 }; } 
+        drawVisualizer(); 
+    }
+
+    function setRatioFromInput(type) { 
+        const wId = type === 'split' ? 'ratioWSplit' : 'ratioW';
+        const hId = type === 'split' ? 'ratioHSplit' : 'ratioH';
+        const w = parseFloat(document.getElementById(wId).value), h = parseFloat(document.getElementById(hId).value); 
+        if(w > 0 && h > 0) { 
+            fixedRatio = w / h; 
+            adjustCropToRatio(); 
+        } 
+    }
+
+    function adjustCropToRatio() { 
+        if(!previewImg || !fixedRatio || fixedRatio === 'full') return; 
+        let r = fixedRatio; 
+        const imgRatio = previewImg.width / previewImg.height; 
+        if(r > imgRatio) { cropBox.w = 0.9; cropBox.h = (0.9 * imgRatio) / r; } 
+        else { cropBox.h = 0.9; cropBox.w = (0.9 * r) / imgRatio; } 
+        cropBox.x = (1 - cropBox.w) / 2; cropBox.y = (1 - cropBox.h) / 2; 
+        drawVisualizer(); 
+    }
+
     function resetGridPositions() { const cols = parseInt(document.getElementById('colInput').value), rows = parseInt(document.getElementById('rowInput').value); if (cols * rows > MAX_MOBILE_SPLIT && isMobile) { alert(`모바일 최대 ${MAX_MOBILE_SPLIT}분할 지원.`); document.getElementById('colInput').value = 1; document.getElementById('rowInput').value = 1; return; } colPos = []; rowPos = []; for(let i=1; i<cols; i++) colPos.push(i/cols); for(let i=1; i<rows; i++) rowPos.push(i/rows); mobileSplitIdx = 0; updateButtonText(); drawVisualizer(); }
     async function handleFiles(files) { const valid = Array.from(files).filter(f => f.type.startsWith('image/')); if(!valid.length) return; originalFile = valid[0]; const reader = new FileReader(); reader.onload = (e) => { previewImg = new Image(); previewImg.onload = async () => { document.getElementById('previewCanvas').style.display = 'block'; document.getElementById('guideText').style.display = 'none'; resetGridPositions(); if(document.getElementById('autoCheck').checked) { for(let file of valid.slice(0, 20)) await executeAction(file); } }; previewImg.src = e.target.result; }; reader.readAsDataURL(originalFile); }
-    function drawVisualizer() { if(!previewImg) return; const canvas = document.getElementById('previewCanvas'), ctx = canvas.getContext('2d'); canvas.width = previewImg.naturalWidth; canvas.height = previewImg.naturalHeight; ctx.drawImage(previewImg, 0, 0); const cropP = parseFloat(document.getElementById('cropInput').value) / 100; if(currentTab === 'split') { const isFree = document.getElementById('freeCheck').checked, x1 = gridBox.x1 * canvas.width, y1 = gridBox.y1 * canvas.height, x2 = gridBox.x2 * canvas.width, y2 = gridBox.y2 * canvas.height, gw = x2 - x1, gh = y2 - y1, fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1]; if(isFree) { ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0,canvas.width, y1); ctx.fillRect(0,y2,canvas.width, canvas.height-y2); ctx.fillRect(0,y1,x1,y2-y1); ctx.fillRect(x2,y1,canvas.width-x2,y2-y1); const sz = canvas.width / 80; ctx.fillStyle = "#00e676"; ctx.fillRect(x1 - sz/2, y1 - sz/2, sz, sz); ctx.fillRect(x2 - sz/2, y1 - sz/2, sz, sz); ctx.fillRect(x1 - sz/2, y2 - sz/2, sz, sz); ctx.fillRect(x2 - sz/2, y2 - sz/2, sz, sz); } let cellNum = 1; for(let r=0; r < fRows.length - 1; r++) { for(let c=0; c < fCols.length - 1; c++) { const sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw = (fCols[c+1]-fCols[c])*gw, sh = (fRows[r+1]-fRows[r])*gh; const mx = sw * cropP, my = sh * cropP; ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; ctx.strokeRect(sx + mx, sy + my, sw - mx*2, sh - my*2); const fs = Math.min(sw, sh) * 0.18; ctx.font = `bold ${fs}px Pretendard`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.strokeStyle = "black"; ctx.lineWidth = fs / 10; ctx.strokeText(cellNum, sx + sw/2, sy + sh/2); ctx.fillStyle = "#00e676"; ctx.fillText(cellNum, sx + sw/2, sy + sh/2); cellNum++; } } } else { const cx = cropBox.x * canvas.width, cy = cropBox.y * canvas.height, cw = cropBox.w * canvas.width, ch = cropBox.h * canvas.height; ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; ctx.strokeRect(cx, cy, cw, ch); } }
-    function handleStart(e) { if(!previewImg) return; const rect = e.target.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX, cy = e.touches ? e.touches[0].clientY : e.clientY; const mx = (cx - rect.left) / rect.width, my = (cy - rect.top) / rect.height, tol = 0.04; if(currentTab === 'split' && document.getElementById('freeCheck').checked) { if(Math.abs(mx - gridBox.x1) < tol && Math.abs(my - gridBox.y1) < tol) draggingType = 'corner-tl'; else if(Math.abs(mx - gridBox.x2) < tol && Math.abs(my - gridBox.y1) < tol) draggingType = 'corner-tr'; else if(Math.abs(mx - gridBox.x1) < tol && Math.abs(my - gridBox.y2) < tol) draggingType = 'corner-bl'; else if(Math.abs(mx - gridBox.x2) < tol && Math.abs(my - gridBox.y2) < tol) draggingType = 'corner-br'; else if(Math.abs(mx - gridBox.x1) < tol) draggingType = 'bound-x1'; else if(Math.abs(mx - gridBox.x2) < tol) draggingType = 'bound-x2'; else if(Math.abs(my - gridBox.y1) < tol) draggingType = 'bound-y1'; else if(Math.abs(my - gridBox.y2) < tol) draggingType = 'bound-y2'; else colPos.forEach((p, i) => { if(Math.abs(mx - (gridBox.x1 + p*(gridBox.x2-gridBox.x1))) < tol/2) { draggingIdx = i; draggingType = 'col'; } }); if(draggingIdx === -1) rowPos.forEach((p, i) => { if(Math.abs(my - (gridBox.y1 + p*(gridBox.y2-gridBox.y1))) < tol/2) { draggingIdx = i; draggingType = 'row'; } }); if(draggingIdx === -1 && draggingType === null && mx > gridBox.x1 && mx < gridBox.x2 && my > gridBox.y1 && my < gridBox.y2) { draggingType = 'move-grid'; draggingIdx = { ox: mx, oy: my }; dragStartGrid = { ...gridBox }; } } else if(currentTab === 'crop') { if(Math.abs(mx - (cropBox.x+cropBox.w)) < tol && Math.abs(my - (cropBox.y+cropBox.h)) < tol) draggingType = 'resize'; else if(mx > cropBox.x && mx < (cropBox.x+cropBox.w) && my > cropBox.y && my < (cropBox.y+cropBox.h)) { draggingType = 'move'; draggingIdx = { ox: mx - cropBox.x, oy: my - cropBox.y }; } } }
-    function handleMove(e) { if(!previewImg || !draggingType) return; if(e.type.startsWith('touch')) e.preventDefault(); const rect = e.target.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX, cy = e.touches ? e.touches[0].clientY : e.clientY; const mx = (cx - rect.left) / rect.width, my = (cy - rect.top) / rect.height; if(draggingType === 'corner-tl') { gridBox.x1 = Math.min(Math.max(0, mx), gridBox.x2 - 0.02); gridBox.y1 = Math.min(Math.max(0, my), gridBox.y2 - 0.02); } else if(draggingType === 'corner-tr') { gridBox.x2 = Math.max(Math.min(1, mx), gridBox.x1 + 0.02); gridBox.y1 = Math.min(Math.max(0, my), gridBox.y2 - 0.02); } else if(draggingType === 'corner-bl') { gridBox.x1 = Math.min(Math.max(0, mx), gridBox.x2 - 0.02); gridBox.y2 = Math.max(Math.min(1, my), gridBox.y1 + 0.02); } else if(draggingType === 'corner-br') { gridBox.x2 = Math.max(Math.min(1, mx), gridBox.x1 + 0.02); gridBox.y2 = Math.max(Math.min(1, my), gridBox.y1 + 0.02); } else if(draggingType.startsWith('bound-')) { const s = draggingType.split('-')[1]; gridBox[s] = Math.max(0, Math.min(1, s.includes('x') ? mx : my)); } else if(draggingType === 'col') colPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (mx - gridBox.x1) / (gridBox.x2 - gridBox.x1))); else if(draggingType === 'row') rowPos[draggingIdx] = Math.max(0.01, Math.min(0.99, (my - gridBox.y1) / (gridBox.y2 - gridBox.y1))); else if(draggingType === 'move-grid') { let dx = mx - draggingIdx.ox, dy = my - draggingIdx.oy; gridBox.x1 = Math.max(0, Math.min(1 - (dragStartGrid.x2-dragStartGrid.x1), dragStartGrid.x1 + dx)); gridBox.x2 = gridBox.x1 + (dragStartGrid.x2-dragStartGrid.x1); gridBox.y1 = Math.max(0, Math.min(1 - (dragStartGrid.y2-dragStartGrid.y1), dragStartGrid.y1 + dy)); gridBox.y2 = gridBox.y1 + (dragStartGrid.y2-dragStartGrid.y1); } else if(draggingType === 'resize') { cropBox.w = Math.max(0.05, mx - cropBox.x); let r = (fixedRatio === 'custom') ? (parseFloat(document.getElementById('ratioW').value) || 1) / (parseFloat(document.getElementById('ratioH').value) || 1) : (typeof fixedRatio === 'number' ? fixedRatio : null); if(r) cropBox.h = (cropBox.w * (previewImg.width/previewImg.height)) / r; else cropBox.h = Math.max(0.05, my - cropBox.y); } else if(draggingType === 'move') { cropBox.x = Math.max(0, Math.min(1 - cropBox.w, mx - draggingIdx.ox)); cropBox.y = Math.max(0, Math.min(1 - cropBox.h, my - draggingIdx.oy)); } drawVisualizer(); }
-    function handleEnd() { draggingIdx = -1; draggingType = null; }
+    function drawVisualizer() { if(!previewImg) return; const canvas = document.getElementById('previewCanvas'), ctx = canvas.getContext('2d'); canvas.width = previewImg.naturalWidth; canvas.height = previewImg.naturalHeight; ctx.drawImage(previewImg, 0, 0); const cropP = parseFloat(document.getElementById('cropInput').value) / 100; if(currentTab === 'split') { const isFree = false; const x1 = gridBox.x1 * canvas.width, y1 = gridBox.y1 * canvas.height, x2 = gridBox.x2 * canvas.width, y2 = gridBox.y2 * canvas.height, gw = x2 - x1, gh = y2 - y1, fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1]; if(isFree) { ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0,canvas.width, y1); ctx.fillRect(0,y2,canvas.width, canvas.height-y2); ctx.fillRect(0,y1,x1,y2-y1); ctx.fillRect(x2,y1,canvas.width-x2,y2-y1); const sz = canvas.width / 80; ctx.fillStyle = "#00e676"; ctx.fillRect(x1 - sz/2, y1 - sz/2, sz, sz); ctx.fillRect(x2 - sz/2, y1 - sz/2, sz, sz); ctx.fillRect(x1 - sz/2, y2 - sz/2, sz, sz); ctx.fillRect(x2 - sz/2, y2 - sz/2, sz, sz); } let cellNum = 1; for(let r=0; r < fRows.length - 1; r++) { for(let c=0; c < fCols.length - 1; c++) { const sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw = (fCols[c+1]-fCols[c])*gw, sh = (fRows[r+1]-fRows[r])*gh; const mx = sw * cropP, my = sh * cropP; ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; ctx.strokeRect(sx + mx, sy + my, sw - mx*2, sh - my*2); const fs = Math.min(sw, sh) * 0.18; ctx.font = `bold ${fs}px Pretendard`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.strokeStyle = "black"; ctx.lineWidth = fs / 10; ctx.strokeText(cellNum, sx + sw/2, sy + sh/2); ctx.fillStyle = "#00e676"; ctx.fillText(cellNum, sx + sw/2, sy + sh/2); cellNum++; } } } else { const cx = cropBox.x * canvas.width, cy = cropBox.y * canvas.height, cw = cropBox.w * canvas.width, ch = cropBox.h * canvas.height; ctx.strokeStyle = "#00e676"; ctx.lineWidth = canvas.width / 110; ctx.strokeRect(cx, cy, cw, ch); } }
+    function handleStart(e) {} function handleMove(e) {} function handleEnd() {}
     async function executeAction(targetFile = null) { const fileToUse = targetFile || originalFile; if(!fileToUse) return; const btn = document.getElementById('downloadBtn'), originalText = t[currentLang].down; const targetMB = currentTargetMB, doWM = document.getElementById('wmCheck').checked, cropP = parseFloat(document.getElementById('cropInput').value) / 100; const img = await loadImage(fileToUse), base = fileToUse.name.replace(/\.[^/.]+$/, ""); if(currentTab === 'split') { const temp = document.createElement('canvas'); temp.width = img.width; temp.height = img.height; const tCtx = temp.getContext('2d'); tCtx.drawImage(img, 0, 0); if(doWM && maskData) applyEraser(tCtx, img.width, img.height); const x1 = gridBox.x1*img.width, x2 = gridBox.x2*img.width, y1 = gridBox.y1*img.height, y2 = gridBox.y2*img.height, gw = x2-x1, gh = y2-y1, fCols = [0, ...colPos, 1], fRows = [0, ...rowPos, 1], total = (fRows.length-1) * (fCols.length-1); if (isMobile) { if (mobileSplitIdx >= total) { mobileSplitIdx = 0; updateButtonText(); return; } const r = Math.floor(mobileSplitIdx / (fCols.length-1)), c = mobileSplitIdx % (fCols.length-1); let sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw_p = (fCols[c+1]-fCols[c])*gw, sh_p = (fRows[r+1]-fRows[r])*gh; const mx = sw_p*cropP, my = sh_p*cropP, fw = Math.floor(sw_p-mx*2), fh = Math.floor(sh_p-my*2); const p = document.createElement('canvas'); p.width = fw; p.height = fh; p.getContext('2d').drawImage(temp, sx+mx, sy+my, fw, fh, 0, 0, fw, fh); p.toBlob(blob => save(blob, `${base}_${r+1}-${c+1}.${fileToUse.type.split('/')[1]}`), fileToUse.type, 1.0); mobileSplitIdx++; updateButtonText(); } else { btn.innerText = t[currentLang].wait; for(let r=0; r<fRows.length-1; r++) { for(let c=0; c<fCols.length-1; c++) { let sx = x1 + fCols[c]*gw, sy = y1 + fRows[r]*gh, sw_p = (fCols[c+1]-fCols[c])*gw, sh_p = (fRows[r+1]-fRows[r])*gh; const mx = sw_p*cropP, my = sh_p*cropP, fw = Math.floor(sw_p-mx*2), fh = Math.floor(sh_p-my*2); const p = document.createElement('canvas'); p.width = fw; p.height = fh; p.getContext('2d').drawImage(temp, sx+mx, sy+my, fw, fh, 0, 0, fw, fh); await new Promise(res => { p.toBlob(blob => { save(blob, `${base}_${r+1}-${c+1}.${fileToUse.type.split('/')[1]}`); setTimeout(res, 50); }, fileToUse.type, 1.0); }); } } btn.innerText = originalText; } } else { btn.innerText = t[currentLang].wait; const getBlob = async (q, s) => { const tw = Math.round(img.width * s), th = Math.round(img.height * s), tmp = document.createElement('canvas'); tmp.width = tw; tmp.height = th; const tc = tmp.getContext('2d'); tc.drawImage(img, 0, 0, tw, th); if(doWM && maskData) applyEraser(tc, tw, th); const cw = Math.round(cropBox.w * tw), ch = Math.round(cropBox.h * th), res = document.createElement('canvas'); res.width = cw; res.height = ch; res.getContext('2d').drawImage(tmp, Math.round(cropBox.x * tw), Math.round(cropBox.y * th), cw, ch, 0, 0, cw, ch); return new Promise(r => res.toBlob(b => r(b), 'image/jpeg', q)); }; let s = 1.0, q = 0.95, finalBlob = null; const limit = targetMB * 1024 * 1024, minLimit = limit * 0.95, lQ = 0.05, hQ = 1.0, lS = 0.5, hS = 1.0; let lowQ = lQ, highQ = hQ, lowS = lS, highS = hS; for(let i=0; i<30; i++) { q = (lowQ + highQ) / 2; s = (lowS + highS) / 2; finalBlob = await getBlob(q, s); if(finalBlob.size > limit) { highQ = q; highS = s; } else if(finalBlob.size < minLimit) { lowQ = q; lowS = s; } else break; } save(finalBlob, `${base}_target_${targetMB}MB.jpg`); btn.innerText = originalText; } }
     function applyEraser(ctx, w, h) { const imgData = ctx.getImageData(0,0,w,h), data = imgData.data, sx = w - maskW - FIX_X, sy = h - maskH - FIX_Y; for(let y=0; y<maskH; y++) { for(let x=0; x<maskW; x++) { const tx = sx + x, ty = sy + y; if(tx<0 || ty<0 || tx>=w || ty>=h) continue; const tIdx = (ty * w + tx) * 4, mIdx = (y * maskW + x) * 4, alpha = Math.min(maskData[mIdx]/255, 0.98); if(alpha < 0.05) continue; const f = 1/(1-alpha); for(let k=0; k<3; k++) data[tIdx+k] = Math.max(0, Math.min(255, (data[tIdx+k]-255*alpha)*f)); } } ctx.putImageData(imgData, 0, 0); }
     function save(blob, name) { const a = document.createElement('a'), url = URL.createObjectURL(blob); a.href = url; a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100); }
